@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lsd.fun.modules.cms.dao.ShopDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.lsd.fun.modules.cms.entity.ShopEntity" id="shopMap">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="remarkScore" column="remark_score"/>
+        <result property="pricePerMan" column="price_per_man"/>
+        <result property="cityEnName" column="city_en_name"/>
+        <result property="regionEnName" column="region_en_name"/>
+        <result property="address" column="address"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="tags" column="tags"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="sellerId" column="seller_id"/>
+        <result property="iconUrl" column="icon_url"/>
+    </resultMap>
+
+
+</mapper>
