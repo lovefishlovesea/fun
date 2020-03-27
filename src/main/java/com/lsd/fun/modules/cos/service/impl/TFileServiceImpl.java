@@ -55,7 +55,7 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
 
     @Transactional
     @Override
-    public TFileEntity upload(MultipartFile file, Integer fileType, LocalDateTime expiredAt) {
+    public TFileEntity upload(MultipartFile file, Integer fileType) {
         QiNiuService qiNiuService = getQiniuCOSService();
 
         final String originalFilename = file.getOriginalFilename();
@@ -67,7 +67,10 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
         Response response;
         try {
             response = qiNiuService.uploadFile(file.getInputStream(), cosFilePath);
-        } catch (IOException e) {
+            if (!response.isOK()) {
+                log.error("文件上传失败,info={}", response.getInfo());
+            }
+        } catch (Exception e) {
             log.error("文件读入失败", e);
             throw new RRException("文件上传失败");
         }
@@ -92,7 +95,7 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
             log.error("上传文件入库失败", e);
             throw new RRException("上传失败");
         }
-        return tFileEntity;
+        return tFileEntity.setPath(qiNiuProperties.getHostPrefix() + cosFilePath);
     }
 
     @Transactional
@@ -108,7 +111,11 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
     public void delete(String cosPath) {
         QiNiuService qCloudCOSService = getQiniuCOSService();
         try {
-            qCloudCOSService.delete(cosPath);
+            Response response = qCloudCOSService.delete(cosPath);
+            if (!response.isOK()) {
+                log.error("文件删除失败,info={}", response.getInfo());
+                throw new RRException("文件删除失败");
+            }
             // 更新数据库
             this.lambdaUpdate().eq(TFileEntity::getPath, cosPath).set(TFileEntity::getDeletedAt, LocalDateTime.now()).update();
         } catch (QiniuException e) {

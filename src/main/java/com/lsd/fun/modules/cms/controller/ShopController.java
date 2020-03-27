@@ -10,6 +10,7 @@ import com.lsd.fun.common.annotation.SysLog;
 import com.lsd.fun.common.utils.excel.ExcelReader;
 import com.lsd.fun.common.utils.excel.writer.ExcelWriterFactory;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.IOUtils;
@@ -19,6 +20,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.lsd.fun.common.utils.BaseQuery;
 import com.lsd.fun.modules.cms.entity.ShopEntity;
@@ -37,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
  * @email syndaliang@foxmail.com
  * @date 2020-03-26 01:29:43
  */
+@Api(tags = "店铺")
 @RestController
 @RequestMapping("cms/shop")
 public class ShopController {
@@ -101,6 +104,19 @@ public class ShopController {
         return R.ok();
     }
 
+
+    @Transactional
+    @SysLog("批量上架/下架")
+    @ApiOperation("批量上架/下架")
+    @PostMapping("/enable")
+    @RequiresPermissions("cms:shop:delete")
+    public R delete(@RequestBody List<Integer> ids, Integer disabledFlag) {
+        shopService.lambdaUpdate()
+                .set(ShopEntity::getDisabledFlag, disabledFlag)
+                .in(ShopEntity::getId, ids)
+                .update();
+        return R.ok();
+    }
 
     @SysLog("Excel批量导入")
     @ApiOperation(value = "Excel批量导入", notes = "Excel批量导入")

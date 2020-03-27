@@ -86,6 +86,6 @@ public class ShopEntity implements Serializable {
 	/**
 	 * 是否禁用
 	 */
-	private String disabledFlag;
+	private Integer disabledFlag;
 
 }

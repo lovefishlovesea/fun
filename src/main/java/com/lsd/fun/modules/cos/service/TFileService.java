@@ -26,12 +26,9 @@ public interface TFileService extends IService<TFileEntity> {
      *
      * @param file      文件对象
      * @param fileType  上传文件类型
-     * @param expiredAt 文件对象过期时间
-     *                  若为 null 则永不过期
-     *                  否则会被定时任务请求云端删除对象
      * @return 数据库中的文件对象实体类
      */
-    TFileEntity upload(MultipartFile file, Integer fileType, LocalDateTime expiredAt);
+    TFileEntity upload(MultipartFile file, Integer fileType);
 
 
     /**

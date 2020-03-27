@@ -35,10 +35,11 @@ spring:
     out-of-order: true
     ignore-missing-migrations: true
 
-rest:
+fun:
   swagger:
     enable: true
     host: localhost:8080
+
 
 
 ##多数据源的配置
@@ -54,4 +55,3 @@ rest:
 #      url: jdbc:postgresql://localhost:5432/renren_security
 #      username: renren
 #      password: 123456
-

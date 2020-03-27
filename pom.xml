@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.qunzhi</groupId>
-    <artifactId>rest</artifactId>
+    <groupId>com.lsd</groupId>
+    <artifactId>fun</artifactId>
     <version>1.0-SNAPSHOT</version>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>1.8</java.version>
         <mybatisplus.version>3.3.0</mybatisplus.version>
         <druid.version>1.1.20</druid.version>
         <quartz.version>2.3.2</quartz.version>
@@ -39,7 +39,7 @@
         <!-- 开发数据库属性 -->
         <flyway.url>
             <![CDATA[
-            jdbc:mysql://127.0.0.1:3606/fun?useUnicode=true&characterEncoding=UTF-8
+            jdbc:mysql://127.0.0.1:3606/fun?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
             ]]>
         </flyway.url>
         <flyway.user>root</flyway.user>

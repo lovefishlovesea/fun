@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS `shop`
     `updated_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `seller_id`     int(11)       NOT NULL DEFAULT '0' COMMENT '商家id',
     `icon_url`      varchar(100)  NOT NULL DEFAULT '' COMMENT '封面',
-    `disabled_flag` tinyint(2)    NOT NULL DEFAULT '0' COMMENT '是否禁用',
+    `disabled_flag` tinyint(2)    NOT NULL DEFAULT '1' COMMENT '是否禁用,默认禁用,需要手动上架',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='店铺表';

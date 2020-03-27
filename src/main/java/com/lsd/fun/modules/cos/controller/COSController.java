@@ -31,14 +31,14 @@ public class COSController {
     @ApiOperation("通用上传文件接口")
     @PostMapping("/save")
     public R uploadFile(MultipartFile file,
-                        @ApiParam("文件类型，0：其他文件，1：头像文件，2：图片，3：音频") @RequestParam(required = false, defaultValue = "0") Integer fileType,
-                        @ApiParam(value = "过期时间，非必要，默认不过期") @RequestParam(required = false) LocalDateTime expiredAt) {
-        return R.ok().put("data", tFileService.upload(file, fileType, expiredAt));
+                        @ApiParam("文件类型，0：其他文件，1：头像文件，2：图片，3：音频") @RequestParam(required = false, defaultValue = "0") Integer fileType
+    ) {
+        return R.ok().put("data", tFileService.upload(file, fileType));
     }
 
     @ApiOperation("删除文件接口")
     @PostMapping("/delete")
-    public R deleteFile(@ApiParam(value = "需要删除的文件id") Long tFileId) {
+    public R deleteFile(@ApiParam(value = "需要删除的文件id") @RequestParam Long tFileId) {
         tFileService.deleteById(tFileId);
         return R.ok();
     }

@@ -86,9 +86,9 @@ fun:
     enable: true
     accessKey: EkDLVyUgeJuKvc2AfeZLj4up7j8QduQRwuBeCPk6
     secretKey: Pk_ioSF4-psi2DGVIdsqYmC8-f1UloVYaKiLNm3z
-    bucket: lee-study
+    bucket: fun-test
     cdnPrefix: cdn
-    hostPrefix: 5pnajx-natappfree-cc-idva5je.qiniudns.com/   # TODO 外链默认域名
+    hostPrefix: q7ulkqz9m.bkt.clouddn.com/   #外链默认域名
     # 允许上传的文件格式
     allowTypes:
       - .bmp
