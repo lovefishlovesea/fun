@@ -2,6 +2,7 @@ package com.lsd.fun.modules.cos.service.impl;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Maps;
 import com.lsd.fun.modules.cos.config.QiNiuProperties;
 import com.lsd.fun.modules.cos.service.QiNiuService;
 import com.qiniu.common.QiniuException;
@@ -45,12 +46,11 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
 
     @PostConstruct
     public void initRelativePathMap() {
-        relativePathMap = Map.of(
-                0, qiNiuProperties.getOtherPath(),
-                1, qiNiuProperties.getAvatarPath(),
-                2, qiNiuProperties.getImagePath(),
-                3, qiNiuProperties.getVideoPath()
-        );
+        relativePathMap = Maps.newHashMap();
+        relativePathMap.put(0, qiNiuProperties.getOtherPath());
+        relativePathMap.put(1, qiNiuProperties.getAvatarPath());
+        relativePathMap.put(2, qiNiuProperties.getImagePath());
+        relativePathMap.put(3, qiNiuProperties.getVideoPath());
     }
 
     @Transactional
@@ -78,7 +78,7 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
         } catch (NullPointerException ignored) {
         }
         // 入文件表
-        final var tFileEntity = new TFileEntity()
+        final TFileEntity tFileEntity = new TFileEntity()
                 .setOriginalFilename(originalFilename)
                 .setUploaderId(uploaderId)
                 .setMimeType(file.getContentType())

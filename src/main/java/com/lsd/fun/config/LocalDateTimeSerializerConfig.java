@@ -67,7 +67,7 @@ public class LocalDateTimeSerializerConfig {
      */
     @Bean
     public Converter<String, LocalDate> localDateConvert() {
-        return new Converter<>() {
+        return new Converter<String, LocalDate>() {
             @Override
             public LocalDate convert(String source) {
                 return LocalDate.parse(source, DateTimeFormatter.ofPattern("yyyy-MM-dd"));

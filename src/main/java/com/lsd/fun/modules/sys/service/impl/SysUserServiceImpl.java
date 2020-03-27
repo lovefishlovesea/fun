@@ -65,7 +65,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> i
 
     @Override
     public List<String> queryAllRoles(Long userId) {
-        final var wrapper = new QueryWrapper<>().eq("u.user_id", userId);
+        final QueryWrapper wrapper = new QueryWrapper<>().eq("u.user_id", userId);
         return baseMapper.queryAllRoles(wrapper);
     }
 

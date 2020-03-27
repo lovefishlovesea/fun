@@ -11,7 +11,8 @@ CREATE TABLE `sys_captcha`
     `code`        varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '验证码',
     `expire_time` datetime(0)                                                 NULL DEFAULT NULL COMMENT '过期时间',
     PRIMARY KEY (`uuid`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统验证码';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '系统验证码';
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -26,7 +27,8 @@ CREATE TABLE `sys_config`
     `remark`      varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci  NULL DEFAULT NULL COMMENT '备注',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE INDEX `param_key` (`param_key`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统配置信息表';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '系统配置信息表';
 
 -- ----------------------------
 -- Table structure for sys_log
@@ -43,7 +45,8 @@ CREATE TABLE `sys_log`
     `ip`          varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci   NULL DEFAULT NULL COMMENT 'IP地址',
     `create_date` datetime(0)                                                    NULL DEFAULT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统日志';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '系统日志';
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -60,7 +63,8 @@ CREATE TABLE `sys_menu`
     `icon`      varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci  NULL DEFAULT NULL COMMENT '菜单图标',
     `order_num` int(11)                                                       NULL DEFAULT NULL COMMENT '排序',
     PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '菜单管理';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '菜单管理';
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -74,7 +78,8 @@ CREATE TABLE `sys_role`
     `create_user_id` bigint(20)                                                    NULL DEFAULT NULL COMMENT '创建者ID',
     `create_time`    datetime(0)                                                   NULL DEFAULT NULL COMMENT '创建时间',
     PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '角色';
 
 -- ----------------------------
 -- Table structure for sys_role_menu
@@ -86,7 +91,8 @@ CREATE TABLE `sys_role_menu`
     `role_id` bigint(20) NULL DEFAULT NULL COMMENT '角色ID',
     `menu_id` bigint(20) NULL DEFAULT NULL COMMENT '菜单ID',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色与菜单对应关系';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '角色与菜单对应关系';
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -106,7 +112,8 @@ CREATE TABLE `sys_user`
     PRIMARY KEY (`user_id`) USING BTREE,
     UNIQUE INDEX `username` (`username`) USING BTREE,
     UNIQUE KEY `mobile` (`mobile`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统用户';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '系统用户';
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -118,7 +125,8 @@ CREATE TABLE `sys_user_role`
     `user_id` bigint(20) NULL DEFAULT NULL COMMENT '系统用户ID',
     `role_id` bigint(20) NULL DEFAULT NULL COMMENT '角色ID',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '用户与角色对应关系';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '用户与角色对应关系';
 
 -- ----------------------------
 -- Table structure for sys_user_token
@@ -132,7 +140,8 @@ CREATE TABLE `sys_user_token`
     `update_time` datetime(0)                                                   NULL DEFAULT NULL COMMENT '更新时间',
     PRIMARY KEY (`user_id`) USING BTREE,
     UNIQUE INDEX `token` (`token`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统用户Token';
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4 COMMENT = '系统用户Token';
 
 
 CREATE TABLE IF NOT EXISTS `sys_data_dictionary`
@@ -143,7 +152,8 @@ CREATE TABLE IF NOT EXISTS `sys_data_dictionary`
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARSET = utf8mb4 COMMENT ='数据字典';
+) ENGINE = InnoDB
+  CHARSET = utf8mb4 COMMENT ='数据字典';
 
 
 CREATE TABLE IF NOT EXISTS `sys_dictionary_manage`
@@ -182,10 +192,11 @@ CREATE TABLE IF NOT EXISTS `seller`
 (
     `id`            int(11)       NOT NULL AUTO_INCREMENT,
     `name`          varchar(80)   NOT NULL DEFAULT '' COMMENT '商家名称',
+    `description`   varchar(255)  NOT NULL DEFAULT '' COMMENT '自我介绍',
     `created_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `remark_score`  decimal(2, 1) NOT NULL DEFAULT '0.0' COMMENT '商家评分',
-    `disabled_flag` int(11)       NOT NULL DEFAULT '0' COMMENT '是否禁用',
+    `disabled_flag` tinyint(2)    NOT NULL DEFAULT '0' COMMENT '是否禁用',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='商家表';
@@ -216,24 +227,41 @@ CREATE TABLE IF NOT EXISTS `seller`
 --   DEFAULT CHARSET = utf8mb4 COMMENT ='房源信息表';
 
 
+CREATE TABLE IF NOT EXISTS `area`
+(
+    `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
+    `pid`        bigint(20)   NOT NULL DEFAULT 0 COMMENT '父级id（一级为0）',
+    `name`       varchar(255) NOT NULL COMMENT '地区名',
+    `level`      TINYINT(2)   NOT NULL COMMENT '0:省份/直辖市,1:市级单位,2:区级单位',
+    `created_at` datetime              DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_area_pid` (`pid`)
+) COMMENT = '地区表,直辖市在level=0能够找到，在level=1也能找到';
+
+
+
 CREATE TABLE IF NOT EXISTS `shop`
 (
-    `id`            int(11)        NOT NULL AUTO_INCREMENT,
-    `title`          varchar(80)    NOT NULL DEFAULT '' COMMENT '商铺标题',
-    `description` varchar(255)    NOT NULL DEFAULT '' COMMENT '商铺介绍',
-    `remark_score`  decimal(2, 1)  NOT NULL DEFAULT '0.0' COMMENT '商铺评分',
-    `price_per_man` int(11)        NOT NULL DEFAULT '0' COMMENT '人均消费',
-    `city_en_name`   varchar(32)      NOT NULL COMMENT '城市标记缩写 如 北京bj',
-    `region_en_name` varchar(255)     NOT NULL COMMENT '地区英文简写 如昌平区 cpq',
-    `address`        varchar(255)     NOT NULL COMMENT '详细地址',
-    `category_id`   int(11)                 DEFAULT NULL COMMENT '商铺类别id',
-    `tags`          varchar(2000)  NOT NULL DEFAULT '' COMMENT '以" "分隔的标签',
-    `created_at`    datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at`    datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `seller_id`     int(11)        NOT NULL DEFAULT '0' COMMENT '商家id',
-    `icon_url`      varchar(100)   NOT NULL DEFAULT '' COMMENT '封面',
+    `id`            int(11)       NOT NULL AUTO_INCREMENT,
+    `title`         varchar(80)   NOT NULL DEFAULT '' COMMENT '商铺标题',
+    `description`   varchar(1024) NOT NULL DEFAULT '' COMMENT '商铺介绍',
+    `remark_score`  decimal(2, 1) NOT NULL DEFAULT '0.0' COMMENT '商铺评分',
+    `price_per_man` int(11)       NOT NULL DEFAULT '0' COMMENT '人均消费',
+    `province`      varchar(32)   NOT NULL COMMENT '省份/直辖市',
+    `city`          varchar(32)   NOT NULL COMMENT '市级单位',
+    `region`        varchar(255)  NOT NULL COMMENT '区级单位',
+    `address`       varchar(255)  NOT NULL COMMENT '详细地址',
+    `category_id`   int(11)                DEFAULT NULL COMMENT '商铺类别id',
+    `tags`          varchar(2000) NOT NULL DEFAULT '' COMMENT '以" "分隔的标签',
+    `created_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `seller_id`     int(11)       NOT NULL DEFAULT '0' COMMENT '商家id',
+    `icon_url`      varchar(100)  NOT NULL DEFAULT '' COMMENT '封面',
+    `disabled_flag` tinyint(2)    NOT NULL DEFAULT '0' COMMENT '是否禁用',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='店铺表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='店铺表';
 
 
 CREATE TABLE IF NOT EXISTS `category`
@@ -246,7 +274,8 @@ CREATE TABLE IF NOT EXISTS `category`
     `updated_at` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name_unique_index` (`name`) USING BTREE
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='商铺类别表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='商铺类别表';
 
 
 CREATE TABLE IF NOT EXISTS `commodity`
@@ -260,7 +289,8 @@ CREATE TABLE IF NOT EXISTS `commodity`
     `created_at`            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='商品表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='商品表';
 
 
 CREATE TABLE IF NOT EXISTS `commodity_category`
@@ -273,7 +303,8 @@ CREATE TABLE IF NOT EXISTS `commodity_category`
     `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='商品类别表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='商品类别表';
 
 
 CREATE TABLE IF NOT EXISTS `member_shop_like`
@@ -283,7 +314,8 @@ CREATE TABLE IF NOT EXISTS `member_shop_like`
     `shop_id`    int(11)           DEFAULT NULL COMMENT '店铺id',
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='会员点赞店铺表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='会员点赞店铺表';
 
 
 
@@ -302,7 +334,8 @@ CREATE TABLE IF NOT EXISTS `member`
     `created_at`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='会员表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='会员表';
 
 
 CREATE TABLE IF NOT EXISTS `feedback`
@@ -314,7 +347,8 @@ CREATE TABLE IF NOT EXISTS `feedback`
     `created_at`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='反馈表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='反馈表';
 
 CREATE TABLE IF NOT EXISTS `coupon`
 (
@@ -325,7 +359,8 @@ CREATE TABLE IF NOT EXISTS `coupon`
     `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='抵扣券';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='抵扣券';
 
 
 
@@ -338,7 +373,8 @@ CREATE TABLE IF NOT EXISTS `coupon_member`
     `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='会员-抵扣券中间表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='会员-抵扣券中间表';
 
 
 CREATE TABLE IF NOT EXISTS `coupon_order`
@@ -349,7 +385,8 @@ CREATE TABLE IF NOT EXISTS `coupon_order`
     `order_id`   int(11)           DEFAULT NULL COMMENT '商品订单ID',
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='订单-抵扣券';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='订单-抵扣券';
 
 
 CREATE TABLE IF NOT EXISTS `recommend`
@@ -357,7 +394,8 @@ CREATE TABLE IF NOT EXISTS `recommend`
     `member_id` int(11) NOT NULL COMMENT '会员id',
     `shop_ids`  varchar(255) DEFAULT NULL COMMENT '以“,”分隔的推荐商铺id字符串数组',
     PRIMARY KEY (`member_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='用户-推荐商铺表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户-推荐商铺表';
 
 
 

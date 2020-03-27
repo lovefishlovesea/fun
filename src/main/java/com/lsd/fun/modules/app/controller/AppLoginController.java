@@ -1,5 +1,6 @@
 package com.lsd.fun.modules.app.controller;
 
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,7 +81,7 @@ public class AppLoginController {
     @PostMapping("/login")
     public R login(@RequestBody AppLoginForm form) {
         ValidatorUtils.validateEntity(form);
-        final var appUserRoleDto = AppRegisterLoginHandler.values()[form.getUserType()].login(form);
+        final UserRoleDto appUserRoleDto = AppRegisterLoginHandler.values()[form.getUserType()].login(form);
         // 发放token
         return R.ok().put("token", jwtUtils.generateToken(appUserRoleDto));
     }
@@ -112,7 +114,7 @@ public class AppLoginController {
             public void register(AppRegisterForm form) {
                 //sha256加密
                 String salt = RandomStringUtils.randomAlphanumeric(20);
-                final var sysUserEntity = SysUserEntity.builder()
+                final SysUserEntity sysUserEntity = SysUserEntity.builder()
                         .username(form.getUsername())
                         .password(new Sha256Hash(form.getPassword(), salt).toHex())
                         .salt(salt)
@@ -129,11 +131,11 @@ public class AppLoginController {
 
             @Override
             public UserRoleDto login(AppLoginForm form) {
-                final var sysUser = Optional.ofNullable(sysUserService.queryByUserName(form.getUsername()))
+                final SysUserEntity sysUser = Optional.ofNullable(sysUserService.queryByUserName(form.getUsername()))
                         .orElseThrow(() -> new RRException("用户名密码错误", HttpStatus.UNAUTHORIZED.value()));
                 checkPassword(sysUser.getPassword(), sysUser.getSalt(), form.getPassword());
                 checkStatus(sysUser.getStatus());
-                final var roles = Optional.ofNullable(sysUserService.queryAllRoles(sysUser.getUserId())).orElse(List.of());
+                final List<String> roles = Optional.ofNullable(sysUserService.queryAllRoles(sysUser.getUserId())).orElse(new ArrayList<>());
                 return UserRoleDto.builder().type(form.getUserType()).userId(sysUser.getUserId()).roleList(roles).build();
             }
         },
@@ -153,7 +155,7 @@ public class AppLoginController {
             public void register(AppRegisterForm form) {
                 //sha256加密
                 String salt = RandomStringUtils.randomAlphanumeric(20);
-                final var familyUserEntity = new AppfamilyUserEntity()
+                final AppfamilyUserEntity familyUserEntity = new AppfamilyUserEntity()
                         .setUsername(form.getUsername())
                         .setPassword(new Sha256Hash(form.getPassword(), salt).toHex())
                         .setSalt(salt)
@@ -169,11 +171,11 @@ public class AppLoginController {
 
             @Override
             public UserRoleDto login(AppLoginForm form) {
-                final var familyUser = Optional.ofNullable(appfamilyUserService.lambdaQuery().eq(AppfamilyUserEntity::getUsername, form.getUsername()).one())
+                final AppfamilyUserEntity familyUser = Optional.ofNullable(appfamilyUserService.lambdaQuery().eq(AppfamilyUserEntity::getUsername, form.getUsername()).one())
                         .orElseThrow(() -> new RRException("用户名密码错误", HttpStatus.UNAUTHORIZED.value()));
                 checkPassword(familyUser.getPassword(), familyUser.getSalt(), form.getPassword());
                 checkStatus(familyUser.getStatus());
-                return UserRoleDto.builder().type(form.getUserType()).userId(familyUser.getId()).roleList(List.of(FAMILY_USER.toString())).build();
+                return UserRoleDto.builder().type(form.getUserType()).userId(familyUser.getId()).roleList(Lists.newArrayList(FAMILY_USER.toString())).build();
             }
         };
 

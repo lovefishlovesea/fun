@@ -89,29 +89,30 @@ public class SysDictionaryManageServiceImpl extends ServiceImpl<SysDictionaryMan
     public void saveOrUpdateWithCheck(SysDictionaryManageEntity sysDictionaryManage) {
         final boolean isUpdate = sysDictionaryManage.getId() != null;
         // 根据did和name查询数据库
-        this.lambdaQuery()
+        final Optional<SysDictionaryManageEntity> oneOpt = this.lambdaQuery()
                 .eq(SysDictionaryManageEntity::getDid, sysDictionaryManage.getDid())
                 .eq(SysDictionaryManageEntity::getName, sysDictionaryManage.getName())
-                .oneOpt()
-                .ifPresentOrElse(entity -> {             //数据库存在
-                    if (isUpdate) {
-                        if (!entity.getId().equals(sysDictionaryManage.getId())) {
-                            throw new RRException("此字典目录下已存在同名字典项", HttpStatus.HTTP_BAD_REQUEST);
-                        }
-                    } else {
-                        if (entity.getDeletedAt() == null) {  //未被逻辑删除，则返回已存在
-                            throw new RRException("此字典目录下已存在同名字典项", HttpStatus.HTTP_BAD_REQUEST);
-                        }
-                    }
-                    // 被逻辑删除过的也走更新逻辑（从而实现保持原字典项id不变，旧的历史数据不会被影响）
-                    this.update(sysDictionaryManage.setId(entity.getId()).setDeletedAt(null));
-                }, () -> {   //数据库不存在
-                    if (isUpdate) {
-                        this.update(sysDictionaryManage.setId(sysDictionaryManage.getId()));
-                    } else {
-                        this.save(sysDictionaryManage);
-                    }
-                });
+                .oneOpt();
+        if (oneOpt.isPresent()) {  //数据库存在
+            final SysDictionaryManageEntity entity = oneOpt.get();
+            if (isUpdate) {
+                if (!entity.getId().equals(sysDictionaryManage.getId())) {
+                    throw new RRException("此字典目录下已存在同名字典项", HttpStatus.HTTP_BAD_REQUEST);
+                }
+            } else {
+                if (entity.getDeletedAt() == null) {  //未被逻辑删除，则返回已存在
+                    throw new RRException("此字典目录下已存在同名字典项", HttpStatus.HTTP_BAD_REQUEST);
+                }
+            }
+            // 被逻辑删除过的也走更新逻辑（从而实现保持原字典项id不变，旧的历史数据不会被影响）
+            this.update(sysDictionaryManage.setId(entity.getId()).setDeletedAt(null));
+        } else {  //数据库不存在
+            if (isUpdate) {
+                this.update(sysDictionaryManage.setId(sysDictionaryManage.getId()));
+            } else {
+                this.save(sysDictionaryManage);
+            }
+        }
     }
 
 }

@@ -3,51 +3,46 @@ package com.lsd.fun.modules.cms.entity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 商家表
+ * 地区表,直辖市在level=0能够找到，在level=1也能找到
  *
  * @author lsd
  * @email syndaliang@foxmail.com
- * @date 2020-03-25 21:28:18
+ * @date 2020-03-26 02:06:00
  */
 @Data
-@TableName("seller")
-public class SellerEntity implements Serializable {
+@TableName("area")
+public class AreaEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 *
+	 * 
 	 */
 	@TableId
-	private Integer id;
+	private Long id;
 	/**
-	 * 商家名称
+	 * 父级id（一级为0）
+	 */
+	private Long pid;
+	/**
+	 * 地区名
 	 */
 	private String name;
 	/**
-	 * 自我介绍
+	 * 0:省份/直辖市,1:市级单位,2:区级单位
 	 */
-	private String description;
+	private Integer level;
 	/**
-	 * 创建时间
+	 * 
 	 */
 	private LocalDateTime createdAt;
 	/**
-	 * 更新时间
+	 * 
 	 */
 	private LocalDateTime updatedAt;
-	/**
-	 * 商家评分
-	 */
-	private BigDecimal remarkScore;
-	/**
-	 * 是否禁用
-	 */
-	private Integer disabledFlag;
 
 }

@@ -29,8 +29,8 @@ public class Query<T> {
 
     public IPage<T> getPage(BaseQuery query, String defaultOrderField, boolean isAsc) {
         //分页参数
-        final var curPage = Optional.ofNullable(query.getPage()).orElse(1);
-        final var limit = Optional.ofNullable(query.getLimit()).orElse(10);
+        final Integer curPage = Optional.ofNullable(query.getPage()).orElse(1);
+        final Integer limit = Optional.ofNullable(query.getLimit()).orElse(10);
         //创建分页对象
         Page<T> page = new Page<>(curPage, limit);
         //排序字段参数

@@ -2,8 +2,12 @@ package com.lsd.fun.modules.cms.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lsd.fun.common.utils.PageUtils;
+import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
+import com.lsd.fun.modules.cms.dto.ShopVO;
 import com.lsd.fun.modules.cms.entity.ShopEntity;
 import com.lsd.fun.common.utils.BaseQuery;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,10 +15,19 @@ import java.util.Map;
  *
  * @author lsd
  * @email syndaliang@foxmail.com
- * @date 2020-03-25 21:28:18
+ * @date 2020-03-26 01:29:43
  */
 public interface ShopService extends IService<ShopEntity> {
 
     PageUtils queryPage(BaseQuery query);
+
+    /**
+     * ShopExcelDTO -> ShopEntity 批量新增或更新
+     *
+     * @param parsedResult    从Excel数据解析出来的数据
+     */
+    void saveFromExcelParsedResult(List<ShopExcelDTO> parsedResult, Integer isUpdate);
+
+    List<ShopVO> listAll();
 }
 

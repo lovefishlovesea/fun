@@ -41,7 +41,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
                 return true;
             }
             // 对用户携带的jwt进行校验
-            final var token = Optional.ofNullable(request.getHeader(jwtUtils.getHeader()))
+            final String token = Optional.ofNullable(request.getHeader(jwtUtils.getHeader()))
                     .orElse(request.getParameter(jwtUtils.getHeader()));
             if (StringUtils.isBlank(token)) {
                 throw new RRException(jwtUtils.getHeader() + "不能为空", HttpStatus.UNAUTHORIZED.value());

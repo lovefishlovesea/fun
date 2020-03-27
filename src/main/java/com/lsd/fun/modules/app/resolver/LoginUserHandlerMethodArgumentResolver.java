@@ -14,6 +14,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,13 +36,13 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer container,
                                   NativeWebRequest request, WebDataBinderFactory factory) throws Exception {
         //用户ID
-        final var userId = (Long) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_KEY, RequestAttributes.SCOPE_REQUEST))
+        final Long userId = (Long) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_KEY, RequestAttributes.SCOPE_REQUEST))
                 .orElseThrow(() -> {
                     log.error("用户ID不能为空");
                     return new RRException("登录失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
                 });
         //用户类型
-        final var userType = (int) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_TYPE_KEY, RequestAttributes.SCOPE_REQUEST))
+        final int userType = (int) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_TYPE_KEY, RequestAttributes.SCOPE_REQUEST))
                 .orElseThrow(() -> {
                     log.error("用户类型不能为空");
                     return new RRException("登录失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
@@ -52,7 +53,7 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
                     log.error("用户角色不能为空");
                     return new RRException("登录失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
                 });
-        final var roles = Arrays.stream(userRoleStr.split(",")).collect(Collectors.toList());
+        final List<String> roles = Arrays.stream(userRoleStr.split(",")).collect(Collectors.toList());
         return UserRoleDto.builder().userId(userId).type(userType).roleList(roles).build();
     }
 }

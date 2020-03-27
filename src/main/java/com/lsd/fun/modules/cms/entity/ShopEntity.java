@@ -7,21 +7,23 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 店铺表
  *
  * @author lsd
  * @email syndaliang@foxmail.com
- * @date 2020-03-25 21:28:18
+ * @date 2020-03-26 01:29:43
  */
+@Accessors(chain = true)
 @Data
 @TableName("shop")
 public class ShopEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 */
 	@TableId
 	private Integer id;
@@ -42,13 +44,17 @@ public class ShopEntity implements Serializable {
 	 */
 	private Integer pricePerMan;
 	/**
-	 * 城市标记缩写 如 北京bj
+	 * 省份/直辖市
 	 */
-	private String cityEnName;
+	private String province;
 	/**
-	 * 地区英文简写 如昌平区 cpq
+	 * 市级单位
 	 */
-	private String regionEnName;
+	private String city;
+	/**
+	 * 区级单位
+	 */
+	private String region;
 	/**
 	 * 详细地址
 	 */
@@ -77,5 +83,9 @@ public class ShopEntity implements Serializable {
 	 * 封面
 	 */
 	private String iconUrl;
+	/**
+	 * 是否禁用
+	 */
+	private String disabledFlag;
 
 }
