@@ -1,5 +1,6 @@
 package com.lsd.fun.modules.cms.service.impl;
 
+import cn.hutool.http.HttpStatus;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,6 +11,7 @@ import com.lsd.fun.common.exception.RRException;
 import com.lsd.fun.common.utils.BaseQuery;
 import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.common.utils.Query;
+import com.lsd.fun.modules.cms.controller.ShopQuery;
 import com.lsd.fun.modules.cms.dao.ShopDao;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
 import com.lsd.fun.modules.cms.dto.ShopVO;
@@ -19,19 +21,23 @@ import com.lsd.fun.modules.cms.entity.ShopEntity;
 import com.lsd.fun.modules.cms.service.CategoryService;
 import com.lsd.fun.modules.cms.service.SellerService;
 import com.lsd.fun.modules.cms.service.ShopService;
+import com.lsd.fun.modules.cos.config.QiNiuProperties;
+import com.lsd.fun.modules.cos.entity.TFileEntity;
+import com.lsd.fun.modules.cos.service.TFileService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.executor.BatchExecutorException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -42,15 +48,19 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
     private CategoryService categoryService;
     @Autowired
     private SellerService sellerService;
+    @Value("#{funConfig.qiniu}")
+    private QiNiuProperties qiNiuProperties;
+    @Autowired
+    private TFileService tFileService;
 
     @Override
-    public PageUtils queryPage(BaseQuery query) {
-        IPage<ShopEntity> page = this.page(
-                new Query<ShopEntity>().getPage(query),
-                new QueryWrapper<ShopEntity>()
-        );
-
-        return new PageUtils(page);
+    public PageUtils queryPage(ShopQuery query) {
+        IPage page = new Query<>().getPage(query);
+        Wrapper wrapper = new QueryWrapper<>()
+                .like(StringUtils.isNotBlank(query.getKeyword()), "shop.title", query.getKeyword());
+        IPage<ShopVO> voPage = this.baseMapper.queryPage(page, wrapper);
+        addCoverUrlPrefix(voPage.getRecords());
+        return new PageUtils(voPage);
     }
 
     @Transactional
@@ -105,9 +115,63 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
     }
 
     @Override
-    public List<ShopVO> listAll() {
+    public List<ShopVO> queryAll() {
         Wrapper wrapper = Wrappers.query().eq("shop.disabled_flag", 0);
-        return this.baseMapper.listAll(wrapper);
+        List<ShopVO> vos = this.baseMapper.queryPage(wrapper);
+        addCoverUrlPrefix(vos);
+        return vos;
+    }
+
+
+    @Override
+    public ShopVO queryById(Integer id) {
+        Wrapper wrapper = Wrappers.query()
+                .eq("shop.id", id);
+        List<ShopVO> list = this.baseMapper.queryPage(wrapper);
+        if (CollectionUtils.isEmpty(list)) {
+            throw new RRException("商铺不存在", HttpStatus.HTTP_BAD_REQUEST);
+        }
+        addCoverUrlPrefix(list);
+        return list.get(0);
+    }
+
+    @Transactional
+    @Override
+    public void update(ShopEntity shop) {
+        this.lambdaQuery()
+                .select(ShopEntity::getCoverFileId)
+                .eq(ShopEntity::getId, shop.getId())
+                .oneOpt()
+                .ifPresent(o -> {
+                    Integer oldFileId = o.getCoverFileId();
+                    tFileService.deleteById(oldFileId);
+                });
+        this.updateById(shop);
+    }
+
+    @Transactional
+    @Override
+    public void removeLogic(List<Integer> idList) {
+        this.lambdaQuery()
+                .select(ShopEntity::getCoverFileId)
+                .in(ShopEntity::getId, idList)
+                .list()
+                .stream()
+                .map(ShopEntity::getCoverFileId)
+                .filter(Objects::nonNull)
+                .forEach(fid -> tFileService.deleteById(fid));
+        this.removeByIds(idList);
+    }
+
+    /**
+     * 非爬取得到的图片需要添加七牛域名
+     */
+    private void addCoverUrlPrefix(List<ShopVO> vos) {
+        for (ShopVO vo : vos) {
+            if (vo.getIsCrawl() == 0) {
+                vo.setCoverUrl(qiNiuProperties.getHostPrefix() + vo.getCoverUrl());
+            }
+        }
     }
 
 }

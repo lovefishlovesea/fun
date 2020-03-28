@@ -1,21 +1,18 @@
 package com.lsd.fun.modules.cms.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import cn.hutool.poi.excel.ExcelReader;
-import com.lsd.fun.common.annotation.SysLog;
+import com.lsd.fun.common.utils.BaseQuery;
+import com.lsd.fun.common.utils.PageUtils;
+import com.lsd.fun.common.utils.R;
+import com.lsd.fun.modules.cms.entity.AreaEntity;
+import com.lsd.fun.modules.cms.service.AreaService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.lsd.fun.common.utils.BaseQuery;
-import com.lsd.fun.modules.cms.entity.AreaEntity;
-import com.lsd.fun.modules.cms.service.AreaService;
-import com.lsd.fun.common.utils.PageUtils;
-import com.lsd.fun.common.utils.R;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -25,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @email syndaliang@foxmail.com
  * @date 2020-03-26 02:06:00
  */
+@Api(tags = "地区")
 @RestController
 @RequestMapping("cms/area")
 public class AreaController {
@@ -40,6 +38,14 @@ public class AreaController {
         PageUtils page = areaService.queryPage(query);
 
         return R.ok().put("page", page);
+    }
+
+    @ApiOperation(value = "地区树",responseContainer = "List",response = AreaEntity.class)
+    @GetMapping("/listTree")
+    @RequiresPermissions("cms:area:list")
+    public R listTree(){
+        List<AreaEntity> list = areaService.listTree();
+        return R.ok().put("data", list);
     }
 
 

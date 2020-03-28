@@ -13,8 +13,6 @@ public class ShopExcelDTO {
     private Integer id;
     // 标题
     private String title;
-    // 封面url
-    private String iconUrl;
     // 商铺介绍
     private String description;
     // 商铺评分

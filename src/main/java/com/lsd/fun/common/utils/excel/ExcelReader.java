@@ -198,10 +198,6 @@ public class ExcelReader {
         cell = row.getCell(cellNum++);
         String title = convertCellValueToString(cell);
         resultData.setTitle(title);
-        // 获取封面url
-        cell = row.getCell(cellNum++);
-        String iconUrl = convertCellValueToString(cell);
-        resultData.setIconUrl(iconUrl);
         // 获取商铺介绍
         cell = row.getCell(cellNum++);
         String description = convertCellValueToString(cell);

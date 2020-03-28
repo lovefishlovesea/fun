@@ -4,12 +4,12 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import com.lsd.fun.common.annotation.SysLog;
 import com.lsd.fun.common.utils.excel.ExcelReader;
 import com.lsd.fun.common.utils.excel.writer.ExcelWriterFactory;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
+import com.lsd.fun.modules.cms.dto.ShopVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import com.lsd.fun.common.utils.BaseQuery;
 import com.lsd.fun.modules.cms.entity.ShopEntity;
 import com.lsd.fun.modules.cms.service.ShopService;
 import com.lsd.fun.common.utils.PageUtils;
@@ -53,7 +52,7 @@ public class ShopController {
      */
     @GetMapping("/list")
     @RequiresPermissions("cms:shop:list")
-    public R list(BaseQuery query) {
+    public R list(ShopQuery query) {
         PageUtils page = shopService.queryPage(query);
 
         return R.ok().put("page", page);
@@ -66,8 +65,7 @@ public class ShopController {
     @GetMapping("/info/{id}")
     @RequiresPermissions("cms:shop:info")
     public R info(@PathVariable("id") Integer id) {
-        ShopEntity shop = shopService.getById(id);
-
+        ShopVO shop = shopService.queryById(id);
         return R.ok().put("shop", shop);
     }
 
@@ -78,7 +76,6 @@ public class ShopController {
     @RequiresPermissions("cms:shop:save")
     public R save(@RequestBody ShopEntity shop) {
         shopService.save(shop);
-
         return R.ok();
     }
 
@@ -88,8 +85,7 @@ public class ShopController {
     @PostMapping("/update")
     @RequiresPermissions("cms:shop:update")
     public R update(@RequestBody ShopEntity shop) {
-        shopService.updateById(shop);
-
+        shopService.update(shop);
         return R.ok();
     }
 
@@ -99,8 +95,7 @@ public class ShopController {
     @PostMapping("/delete")
     @RequiresPermissions("cms:shop:delete")
     public R delete(@RequestBody Integer[] ids) {
-        shopService.removeByIds(Arrays.asList(ids));
-
+        shopService.removeLogic(Arrays.asList(ids));
         return R.ok();
     }
 
@@ -141,7 +136,7 @@ public class ShopController {
     public R listExport(@RequestParam(required = false, defaultValue = "0") @ApiParam("是否导出模板，0：否，1：是") Integer isTemplate, HttpServletResponse response) {
         // 全部按照固定资产的列头导出，非固定的把对应列值填充空白即可
         Workbook workbook = excelWriterFactory.getWriter("shopExcelWriter")
-                .exportExcel(null, isTemplate == 1 ? null : shopService.listAll());
+                .exportExcel(null, isTemplate == 1 ? null : shopService.queryAll());
         OutputStream out = null;
         // 输出Excel文件流
         String excelName = isTemplate == 1 ? "商铺信息模板" : "商铺信息";

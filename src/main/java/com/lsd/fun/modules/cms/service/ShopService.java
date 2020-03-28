@@ -2,6 +2,7 @@ package com.lsd.fun.modules.cms.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lsd.fun.common.utils.PageUtils;
+import com.lsd.fun.modules.cms.controller.ShopQuery;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
 import com.lsd.fun.modules.cms.dto.ShopVO;
 import com.lsd.fun.modules.cms.entity.ShopEntity;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public interface ShopService extends IService<ShopEntity> {
 
-    PageUtils queryPage(BaseQuery query);
+    PageUtils queryPage(ShopQuery query);
 
     /**
      * ShopExcelDTO -> ShopEntity 批量新增或更新
@@ -28,6 +29,12 @@ public interface ShopService extends IService<ShopEntity> {
      */
     void saveFromExcelParsedResult(List<ShopExcelDTO> parsedResult, Integer isUpdate);
 
-    List<ShopVO> listAll();
+    List<ShopVO> queryAll();
+
+    ShopVO queryById(Integer id);
+
+    void update(ShopEntity shop);
+
+    void removeLogic(List<Integer> idList);
 }
 

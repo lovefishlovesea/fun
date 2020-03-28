@@ -42,7 +42,6 @@ public class ShopExcelWriter implements ExcelWriter {
         // 类装载时就载入指定好的列头信息，如有需要，可以考虑做成动态生成的列头
         SHOP_CELL_HEADS = new ArrayList<>();
         SHOP_CELL_HEADS.add("标题");
-        SHOP_CELL_HEADS.add("封面url");
         SHOP_CELL_HEADS.add("商铺介绍");
         SHOP_CELL_HEADS.add("商铺评分");
         SHOP_CELL_HEADS.add("省份/直辖市");
@@ -86,9 +85,9 @@ public class ShopExcelWriter implements ExcelWriter {
 
         // 设置数据校验
         ExcelUtils.setDecimalConstraint(mainSheet, 1, 5000, isEmptyExcel ? 3 : 4, isEmptyExcel ? 3 : 4);
-        ExcelUtils.setValidationListData(mainSheet, 1, 5000, isEmptyExcel ? 9 : 10, isEmptyExcel ? 9 : 10, categories.toArray(new String[0]));
-        ExcelUtils.setFormulaListValidation(wb,sellers,"sellers",17,1, 5000, isEmptyExcel ? 11 : 12, isEmptyExcel ? 11 : 12);
-        ExcelUtils.setIntegerConstraint(mainSheet, 1, 5000, isEmptyExcel ? 12 : 13, isEmptyExcel ? 12 : 13);
+        ExcelUtils.setValidationListData(mainSheet, 1, 5000, isEmptyExcel ? 8 : 9, isEmptyExcel ? 8 : 9, categories.toArray(new String[0]));
+        ExcelUtils.setFormulaListValidation(wb,sellers,"sellers",17,1, 5000, isEmptyExcel ? 10 : 11, isEmptyExcel ? 10 : 11);
+        ExcelUtils.setIntegerConstraint(mainSheet, 1, 5000, isEmptyExcel ? 11 : 12, isEmptyExcel ? 11 : 12);
 
         // 设置dataSheet为隐藏
         wb.setSheetHidden(wb.getSheetIndex(ExcelUtils.DICT_SHEET_DATA), true);
@@ -130,37 +129,34 @@ public class ShopExcelWriter implements ExcelWriter {
         // 2 标题
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getTitle() ? "" : shop.getTitle());
-        // 3 封面url
-        cell = row.createCell(cellNum++);
-        cell.setCellValue(null == shop.getIconUrl() ? "" : shop.getIconUrl());
-        // 4 商铺介绍
+        // 3 商铺介绍
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getDescription() ? "" : shop.getDescription());
-        // 5 商铺评分
+        // 4 商铺评分
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getRemarkScore() ? "" : shop.getRemarkScore().toString());
-        // 6 省份/直辖市
+        // 5 省份/直辖市
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getProvince() ? "" : shop.getProvince());
-        // 7 市级单位
+        // 6 市级单位
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getCity() ? "" : shop.getCity());
-        // 8 区级单位
+        // 7 区级单位
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getRegion() ? "" : shop.getRegion());
-        // 9 详细地址
+        // 8 详细地址
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getAddress() ? "" : shop.getAddress());
-        // 10 商铺类别
+        // 9 商铺类别
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getCategory() ? "" : shop.getCategory());
-        // 11 商铺以空格分隔的标签
+        // 10 商铺以空格分隔的标签
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getTags() ? "" : shop.getTags());
-        // 12 商家名称
+        // 11 商家名称
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getSeller() ? "" : shop.getSeller());
-        // 13 人均消费
+        // 12 人均消费
         cell = row.createCell(cellNum++);
         cell.setCellValue(null == shop.getPricePerMan() ? "" : shop.getPricePerMan().toString());
     }

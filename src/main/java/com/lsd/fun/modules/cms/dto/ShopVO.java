@@ -16,5 +16,9 @@ public class ShopVO extends ShopEntity {
     private String category;
     // 商家名称
     private String seller;
+    // 封面url
+    private String coverUrl;
+    // 封面是否爬取的
+    private Integer isCrawl;
 
 }

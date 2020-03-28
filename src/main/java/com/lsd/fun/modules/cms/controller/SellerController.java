@@ -13,7 +13,6 @@ import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.common.utils.R;
 
 
-
 /**
  * 商家表
  *
@@ -32,20 +31,26 @@ public class SellerController {
      */
     @GetMapping("/list")
     @RequiresPermissions("cms:seller:list")
-    public R list(BaseQuery query){
+    public R list(BaseQuery query) {
         PageUtils page = sellerService.queryPage(query);
 
         return R.ok().put("page", page);
     }
 
 
+    @GetMapping("/listAll")
+    @RequiresPermissions("cms:seller:list")
+    public R listAll() {
+        return R.ok().put("data", sellerService.lambdaQuery().eq(SellerEntity::getDisabledFlag, 0).list());
+    }
+
     /**
      * 信息
      */
     @GetMapping("/info/{id}")
     @RequiresPermissions("cms:seller:info")
-    public R info(@PathVariable("id") Integer id){
-		SellerEntity seller = sellerService.getById(id);
+    public R info(@PathVariable("id") Integer id) {
+        SellerEntity seller = sellerService.getById(id);
 
         return R.ok().put("seller", seller);
     }
@@ -55,8 +60,8 @@ public class SellerController {
      */
     @PostMapping("/save")
     @RequiresPermissions("cms:seller:save")
-    public R save(@RequestBody SellerEntity seller){
-		sellerService.save(seller);
+    public R save(@RequestBody SellerEntity seller) {
+        sellerService.save(seller);
 
         return R.ok();
     }
@@ -66,8 +71,8 @@ public class SellerController {
      */
     @PostMapping("/update")
     @RequiresPermissions("cms:seller:update")
-    public R update(@RequestBody SellerEntity seller){
-		sellerService.updateById(seller);
+    public R update(@RequestBody SellerEntity seller) {
+        sellerService.updateById(seller);
 
         return R.ok();
     }
@@ -77,8 +82,8 @@ public class SellerController {
      */
     @PostMapping("/delete")
     @RequiresPermissions("cms:seller:delete")
-    public R delete(@RequestBody Integer[] ids){
-		sellerService.removeByIds(Arrays.asList(ids));
+    public R delete(@RequestBody Integer[] ids) {
+        sellerService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

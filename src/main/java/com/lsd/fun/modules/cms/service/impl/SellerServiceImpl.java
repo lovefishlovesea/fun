@@ -1,7 +1,9 @@
 package com.lsd.fun.modules.cms.service.impl;
 
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,6 +23,8 @@ public class SellerServiceImpl extends ServiceImpl<SellerDao, SellerEntity> impl
         IPage<SellerEntity> page = this.page(
                 new Query<SellerEntity>().getPage(query),
                 new QueryWrapper<SellerEntity>()
+                        .lambda()
+                        .eq(SellerEntity::getDisabledFlag, 0)
         );
 
         return new PageUtils(page);

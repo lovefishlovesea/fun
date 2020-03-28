@@ -100,13 +100,18 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
 
     @Transactional
     @Override
-    public void deleteById(Long tFileId) {
-        Optional.ofNullable(
-                this.lambdaQuery().select(TFileEntity::getPath).eq(TFileEntity::getId, tFileId).one()
-        ).ifPresent(tFile -> this.delete(tFile.getPath()));
+    public void deleteById(Integer tFileId) {
+        this.lambdaQuery().select(TFileEntity::getPath)
+                .eq(TFileEntity::getId, tFileId)
+                .oneOpt()
+                .ifPresent(tFile -> this.delete(tFile.getPath()));
+        // 更新数据库
+        this.lambdaUpdate()
+                .set(TFileEntity::getDeletedAt, LocalDateTime.now())
+                .eq(TFileEntity::getId, tFileId)
+                .update();
     }
 
-    @Transactional
     @Override
     public void delete(String cosPath) {
         QiNiuService qCloudCOSService = getQiniuCOSService();
@@ -116,10 +121,9 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
                 log.error("文件删除失败,info={}", response.getInfo());
                 throw new RRException("文件删除失败");
             }
-            // 更新数据库
-            this.lambdaUpdate().eq(TFileEntity::getPath, cosPath).set(TFileEntity::getDeletedAt, LocalDateTime.now()).update();
         } catch (QiniuException e) {
-            e.printStackTrace();
+            log.error("文件删除失败", e);
+            throw new RRException("文件删除失败");
         }
     }
 

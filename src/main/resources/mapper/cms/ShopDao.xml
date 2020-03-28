@@ -19,11 +19,11 @@
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
         <result property="sellerId" column="seller_id"/>
-        <result property="iconUrl" column="icon_url"/>
+        <result property="coverFileId" column="cover_file_id"/>
         <result property="disabledFlag" column="disabled_flag"/>
     </resultMap>
 
-    <select id="listAll" resultType="com.lsd.fun.modules.cms.dto.ShopVO">
+    <select id="queryPage" resultType="com.lsd.fun.modules.cms.dto.ShopVO">
         select shop.id,
                shop.title,
                shop.description,
@@ -38,15 +38,16 @@
                shop.created_at,
                shop.updated_at,
                shop.seller_id,
-               shop.icon_url,
                shop.disabled_flag,
                category.name as category,
-               seller.name as seller
+               seller.name   as seller,
+               cover.path    as cover_url,
+               cover.is_crawl
         from shop
                  left join category on category.id = shop.category_id
                  left join seller on seller.id = shop.seller_id
+                 left join t_file cover on cover.id = shop.cover_file_id
             ${ew.customSqlSegment}
     </select>
-
 
 </mapper>

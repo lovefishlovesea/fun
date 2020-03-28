@@ -32,18 +32,18 @@ public interface TFileService extends IService<TFileEntity> {
 
 
     /**
-     * 删除 COS 云存储的文件对象
+     * 仅删除 COS 云存储的文件对象
      *
      * @param cosPath 云端文件对象路径
      */
     void delete(String cosPath);
 
     /**
-     * 删除 COS 云存储的文件对象
+     * 删除 COS 云存储的文件对象 和 数据库
      *
      * @param tFileId
      */
-    void deleteById(Long tFileId);
+    void deleteById(Integer tFileId);
 
 
     /**

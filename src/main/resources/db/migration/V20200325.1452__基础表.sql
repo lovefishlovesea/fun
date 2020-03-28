@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS `t_file`
     `size`              bigint(20)   NULL DEFAULT NULL COMMENT '对象大小（字节）',
     `mime_type`         varchar(255) NULL DEFAULT NULL COMMENT 'MIME类型',
     `uploader_id`       bigint(20)   NULL DEFAULT NULL COMMENT '上传用户id',
+    `is_crawl`          tinyint(2)   NULL DEFAULT 0 COMMENT '是否爬取',
     `created_at`        datetime(0)  NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`        datetime(0)  NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
     `deleted_at`        datetime(0)  NULL DEFAULT NULL,
@@ -229,15 +230,15 @@ CREATE TABLE IF NOT EXISTS `seller`
 
 CREATE TABLE IF NOT EXISTS `area`
 (
-    `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
-    `pid`        bigint(20)   NOT NULL DEFAULT 0 COMMENT '父级id（一级为0）',
+    `id`         int(11)      NOT NULL AUTO_INCREMENT,
+    `pid`        int(11)      NOT NULL DEFAULT 0 COMMENT '父级id（一级为0）',
     `name`       varchar(255) NOT NULL COMMENT '地区名',
-    `level`      TINYINT(2)   NOT NULL COMMENT '0:省份/直辖市,1:市级单位,2:区级单位',
+    `level`      TINYINT(2)   NOT NULL COMMENT '0:省份/直辖市,1:市级单位,2:区级单位（直辖市在level=0能够找到，在level=1也能找到）',
     `created_at` datetime              DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     INDEX `idx_area_pid` (`pid`)
-) COMMENT = '地区表,直辖市在level=0能够找到，在level=1也能找到';
+) COMMENT = '地区表';
 
 
 
@@ -257,7 +258,7 @@ CREATE TABLE IF NOT EXISTS `shop`
     `created_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `seller_id`     int(11)       NOT NULL DEFAULT '0' COMMENT '商家id',
-    `icon_url`      varchar(100)  NOT NULL DEFAULT '' COMMENT '封面',
+    `cover_file_id` int(11)                DEFAULT NULL COMMENT '封面',
     `disabled_flag` tinyint(2)    NOT NULL DEFAULT '1' COMMENT '是否禁用,默认禁用,需要手动上架',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB

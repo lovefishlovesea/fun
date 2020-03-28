@@ -12,7 +12,7 @@ import java.io.InputStream;
 public interface QiNiuService {
 
     /**
-     * 上传文件，有文件校验逻辑
+     * 上传文件，有文件类型校验逻辑
      *
      * @param file 需要上传的文件
      * @param key  保存到云端的文件名，若key为null则根据时间生成随机文件名
@@ -20,7 +20,7 @@ public interface QiNiuService {
     Response uploadFile(File file, String key) throws QiniuException;
 
     /**
-     * 上传文件，无文件校验逻辑
+     * 上传文件，无文件类型校验逻辑
      *
      * @param inputStream 需要上传的文件is
      * @param key  保存到云端的文件名，若key为null则七牛云会自动生成文件名

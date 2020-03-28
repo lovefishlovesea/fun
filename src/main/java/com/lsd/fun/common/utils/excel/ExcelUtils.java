@@ -460,10 +460,10 @@ public class ExcelUtils {
             }
         }
         // 第6列数据级联到坐标第E列，第7列数据级联到坐标第F列
+        setFormulaStringDataValidation(wb, isEmptyExcel ? "D" : "E", isEmptyExcel ? 5 : 6, 5000);
         setFormulaStringDataValidation(wb, isEmptyExcel ? "E" : "F", isEmptyExcel ? 6 : 7, 5000);
-        setFormulaStringDataValidation(wb, isEmptyExcel ? "F" : "G", isEmptyExcel ? 7 : 8, 5000);
         // 第5列放入省份/直辖市
-        setValidationListData(mainSheet, 1, 5000, isEmptyExcel ? 5 : 6, isEmptyExcel ? 5 : 6, areaGroupByLevel.get(0).stream().map(AreaEntity::getName).toArray(String[]::new));
+        setValidationListData(mainSheet, 1, 5000, isEmptyExcel ? 4 : 5, isEmptyExcel ? 4 : 5, areaGroupByLevel.get(0).stream().map(AreaEntity::getName).toArray(String[]::new));
 
         return wb;
     }

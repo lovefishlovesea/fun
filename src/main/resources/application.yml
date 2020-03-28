@@ -88,7 +88,7 @@ fun:
     secretKey: Pk_ioSF4-psi2DGVIdsqYmC8-f1UloVYaKiLNm3z
     bucket: fun-test
     cdnPrefix: cdn
-    hostPrefix: q7ulkqz9m.bkt.clouddn.com/   #外链默认域名
+    hostPrefix: http://q7ulkqz9m.bkt.clouddn.com/   #外链默认域名
     # 允许上传的文件格式
     allowTypes:
       - .bmp

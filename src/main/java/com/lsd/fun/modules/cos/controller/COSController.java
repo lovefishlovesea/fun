@@ -38,7 +38,7 @@ public class COSController {
 
     @ApiOperation("删除文件接口")
     @PostMapping("/delete")
-    public R deleteFile(@ApiParam(value = "需要删除的文件id") @RequestParam Long tFileId) {
+    public R deleteFile(@ApiParam(value = "需要删除的文件id") @RequestParam Integer tFileId) {
         tFileService.deleteById(tFileId);
         return R.ok();
     }
