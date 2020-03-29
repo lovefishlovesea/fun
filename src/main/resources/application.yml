@@ -39,6 +39,13 @@ spring:
 #  resources:
 #    add-mappings: false
 
+  #配置kafka
+  kafka:
+    bootstrap-servers: 192.168.101.10:9092  #集群地址，以逗号分隔的主机：端口对列表
+    consumer:
+      group-id: fun               #指定默认消费者组名字（group id）
+      enable-auto-commit: false   #是否让kafka去自动提交offset，默认值为true，设为false则让Spring（代理）自动提交offset
+
 
 #mybatis
 mybatis-plus:
@@ -69,6 +76,8 @@ fun:
   redis:
     keyPrefix:
       dictionary: fun:dictionary
+  elasticsearch:
+    node-list: 127.0.0.1:9200
   shiro:
     redis: false
   # APP模块，是通过jwt认证的，如果要使用APP模块，则需要修改【加密秘钥】
