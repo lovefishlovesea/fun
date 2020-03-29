@@ -1,11 +1,10 @@
-package com.lsd.fun.modules.canal;
+package com.lsd.fun.modules.cms.canal;
 
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.CanalConnectors;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.net.InetSocketAddress;
 import java.util.List;

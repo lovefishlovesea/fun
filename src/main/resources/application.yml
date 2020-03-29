@@ -110,3 +110,14 @@ fun:
     video-path: video
     other-path: other
 
+#百度地图 API Key
+baidu-map:
+  apiKey: UiiRCb5THoN4tsKwIYaPYnka8OaDHiDz
+  geocoderApiPrefix: http://api.map.baidu.com/geocoding/v3/
+  poi:
+    geotableId: 209006
+    createUrl: http://api.map.baidu.com/geodata/v3/poi/create
+    queryUrl: http://api.map.baidu.com/geodata/v3/poi/list
+    updateUrl: http://api.map.baidu.com/geodata/v3/poi/update
+    deleteUrl: http://api.map.baidu.com/geodata/v3/poi/delete
+

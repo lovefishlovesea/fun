@@ -50,4 +50,24 @@
             ${ew.customSqlSegment}
     </select>
 
+
+    <select id="queryNeedIndexRow" resultType="java.util.Map">
+        select shop.id,
+               shop.title,
+               shop.tags,
+               concat(shop.province, shop.city, shop.region, shop.address) as address,
+               shop.remark_score,
+               shop.price_per_man,
+               shop.category_id,
+               category.name       as category_name,
+               shop.seller_id,
+               seller.name         as seller_name,
+               seller.remark_score as seller_remark_score,
+               shop.disabled_flag
+        from shop
+                 inner join category on shop.category_id = category.id
+                 inner join seller on shop.seller_id = seller.id
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

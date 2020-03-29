@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 店铺表
@@ -24,4 +25,11 @@ public interface ShopDao extends BaseMapper<ShopEntity> {
     List<ShopVO> queryPage(@Param(Constants.WRAPPER) Wrapper wrapper);
 
     IPage<ShopVO> queryPage(IPage page, @Param(Constants.WRAPPER) Wrapper wrapper);
+
+    /**
+     * 查询这几个字段变更了的数据（待同步索引的数据）
+     * @param wrapper
+     * @return 一条数据Row是一个Map，返回这种结构方便 ES API 直接使用
+     */
+    List<Map<String, Object>> queryNeedIndexRow(@Param(Constants.WRAPPER) Wrapper wrapper);
 }
