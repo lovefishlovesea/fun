@@ -25,7 +25,6 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
 
     public static final String USER_ROLE_KEY = "roles";
     public static final String USER_KEY = "userId";
-    public static final String USER_TYPE_KEY = "userType";
     private final JwtUtils jwtUtils;
 
     public AuthorizationInterceptor(JwtUtils jwtUtils) {
@@ -52,8 +51,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
                 throw new RRException(jwtUtils.getHeader() + "失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
             }
             //设置userId、用户角色列表等到request里，往下传递后续使用
-            request.setAttribute(USER_KEY, Long.parseLong(claims.getSubject()));
-            request.setAttribute(USER_TYPE_KEY, claims.get(USER_TYPE_KEY, Integer.class));
+            request.setAttribute(USER_KEY, new Integer(claims.getSubject()));
             request.setAttribute(USER_ROLE_KEY, claims.get(USER_ROLE_KEY, String.class));
         }
         return true;

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -13,18 +14,15 @@ import java.util.List;
  * Created by lsd
  * 2020-01-13 17:57
  */
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @ApiModel("app登录接口参数")
 @Data
 public class UserRoleDto {
 
     @ApiModelProperty(hidden = true)
-    private Long userId;
-
-    @ApiModelProperty(hidden = true)
-    private Integer type;
+    private Integer userId;
 
     @ApiModelProperty(hidden = true)
     private List<String> roleList;

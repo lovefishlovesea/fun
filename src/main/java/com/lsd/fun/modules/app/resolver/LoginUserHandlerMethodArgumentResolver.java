@@ -36,15 +36,9 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer container,
                                   NativeWebRequest request, WebDataBinderFactory factory) throws Exception {
         //用户ID
-        final Long userId = (Long) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_KEY, RequestAttributes.SCOPE_REQUEST))
+        final Integer userId = (Integer) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_KEY, RequestAttributes.SCOPE_REQUEST))
                 .orElseThrow(() -> {
                     log.error("用户ID不能为空");
-                    return new RRException("登录失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
-                });
-        //用户类型
-        final int userType = (int) Optional.ofNullable(request.getAttribute(AuthorizationInterceptor.USER_TYPE_KEY, RequestAttributes.SCOPE_REQUEST))
-                .orElseThrow(() -> {
-                    log.error("用户类型不能为空");
                     return new RRException("登录失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
                 });
         //用户角色
@@ -54,6 +48,6 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
                     return new RRException("登录失效，请重新登录", HttpStatus.UNAUTHORIZED.value());
                 });
         final List<String> roles = Arrays.stream(userRoleStr.split(",")).collect(Collectors.toList());
-        return UserRoleDto.builder().userId(userId).type(userType).roleList(roles).build();
+        return new UserRoleDto(userId, roles);
     }
 }

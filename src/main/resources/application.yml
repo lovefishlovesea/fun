@@ -36,8 +36,8 @@ spring:
         min-idle: 5       # 连接池中的最小空闲连接
   mvc:
     throw-exception-if-no-handler-found: true
-#  resources:
-#    add-mappings: false
+  #  resources:
+  #    add-mappings: false
 
   #配置kafka
   kafka:
@@ -45,6 +45,20 @@ spring:
     consumer:
       group-id: fun               #指定默认消费者组名字（group id）
       enable-auto-commit: false   #是否让kafka去自动提交offset，默认值为true，设为false则让Spring（代理）自动提交offset
+  #QQ邮箱邮件smtp服务配置（需要把SMTP协议更换为SMTPS协议，否则频率高就会被误判为垃圾邮件而封禁）
+  mail:
+    host: smtp.qq.com
+    username: syndaliang@foxmail.com
+    password: gkrewxllraijecac
+    test-connection: true
+    port: 465
+    properties:
+      mail.smtp.auth: true                                            #开启认证
+      mail.smtp.timeout: 1000                                         #设置链接超时
+      mail.smtp.port: 465                                             #使用SMTPS协议465端口
+      mail.smtp.socketFactory.port: 465                               #使用SMTPS协议465端口
+      mail.smtp.socketFactory.fallback: false
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory   #SSL证书Socket工厂
 
 
 #mybatis
@@ -76,6 +90,7 @@ fun:
   redis:
     keyPrefix:
       dictionary: fun:dictionary
+      mail-captcha: fun:mail_captcha
   elasticsearch:
     node-list: 127.0.0.1:9200
   shiro:
@@ -120,4 +135,3 @@ baidu-map:
     queryUrl: http://api.map.baidu.com/geodata/v3/poi/list
     updateUrl: http://api.map.baidu.com/geodata/v3/poi/update
     deleteUrl: http://api.map.baidu.com/geodata/v3/poi/delete
-

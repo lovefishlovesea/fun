@@ -97,25 +97,4 @@ public class Constant {
     }
 
 
-    /**
-     * 用户类型枚举
-     */
-    @AllArgsConstructor
-    @Getter
-    public enum UserType {
-        EMPLOYEE_USER(0, "EMPLOYEE_USER"),
-        FAMILY_USER(1, "FAMILY_USER"),
-        ;
-        private int code;
-        private String type;
-
-        public static UserType getUserType(UserRoleDto userRoleDto) {
-            Constant.UserType userType = Constant.UserType.EMPLOYEE_USER;
-            if (userRoleDto.getType() == Constant.UserType.FAMILY_USER.getCode()) {
-                userType = Constant.UserType.FAMILY_USER;
-            }
-            return userType;
-        }
-    }
-
 }

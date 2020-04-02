@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * jwt工具类
  */
-@ConfigurationProperties(prefix = "rest.jwt")
+@ConfigurationProperties(prefix = "fun.jwt")
 @Component
 @Data
 public class JwtUtils {
@@ -39,7 +39,6 @@ public class JwtUtils {
         Map<String,Object> claims = new HashMap<>();
         String roleListStr = String.join(",", userRoleDto.getRoleList());
         claims.put(AuthorizationInterceptor.USER_ROLE_KEY,roleListStr);
-        claims.put(AuthorizationInterceptor.USER_TYPE_KEY,userRoleDto.getType());
 
         return Jwts.builder()
                 // 角色列表放入payload的私有声明

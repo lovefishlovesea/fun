@@ -1,30 +1,31 @@
 package com.lsd.fun.modules.app.controller;
 
 import com.google.common.collect.Lists;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import com.lsd.fun.common.exception.RRException;
 import com.lsd.fun.common.utils.Constant;
 import com.lsd.fun.common.utils.R;
 import com.lsd.fun.common.validator.ValidatorUtils;
 import com.lsd.fun.modules.app.dto.UserRoleDto;
-import com.lsd.fun.modules.app.entity.AppfamilyUserEntity;
 import com.lsd.fun.modules.app.form.AppLoginForm;
 import com.lsd.fun.modules.app.form.AppRegisterForm;
-import com.lsd.fun.modules.app.service.AppfamilyUserService;
+import com.lsd.fun.modules.app.service.MailService;
 import com.lsd.fun.modules.app.utils.JwtUtils;
-import com.lsd.fun.modules.sys.entity.SysUserEntity;
-import com.lsd.fun.modules.sys.service.SysUserService;
+import com.lsd.fun.modules.cms.entity.MemberEntity;
+import com.lsd.fun.modules.cms.service.MemberService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.crypto.hash.Sha256Hash;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,48 +33,50 @@ import java.util.Optional;
  * Created by lsd
  * 2020-01-13 15:38
  */
+@Slf4j
 @Api(tags = "App登录接口")
 @RequestMapping("/app")
 @RestController
 public class AppLoginController {
 
-    private final SysUserService SysUserService;
-    private static SysUserService sysUserService;
-    private final AppfamilyUserService AppfamilyUserService;
-    private static AppfamilyUserService appfamilyUserService;
     private final JwtUtils jwtUtils;
+    private final MemberService memberService;
+    private final MailService mailService;
+    private final StringRedisTemplate redisTemplate;
+    @Value("#{funConfig.redis.keyPrefix.mailCaptcha}")
+    private String keyPrefix;
 
-    public AppLoginController(JwtUtils jwtUtils, AppfamilyUserService appfamilyUserService, SysUserService sysUserService) {
+    public AppLoginController(JwtUtils jwtUtils, MemberService memberService, MailService mailService, StringRedisTemplate redisTemplate) {
         this.jwtUtils = jwtUtils;
-        this.AppfamilyUserService = appfamilyUserService;
-        this.SysUserService = sysUserService;
+        this.memberService = memberService;
+        this.mailService = mailService;
+        this.redisTemplate = redisTemplate;
     }
-
-    @PostConstruct
-    public void init() {
-        sysUserService = SysUserService;
-        appfamilyUserService = AppfamilyUserService;
-    }
-
-    @ApiOperation("手机号是否已被使用")
-    @PostMapping("/check-mobile")
-    public R checkMobile(@RequestParam String mobile, @RequestParam @ApiParam("0：员工，1：家属") Integer userType) {
-        final boolean mobileExist = AppRegisterLoginHandler.values()[userType].isMobileExist(mobile);
-        return R.ok().put("exist", mobileExist);
-    }
-
-    @ApiOperation("用户名是否已被使用")
-    @PostMapping("/check-username")
-    public R checkUsername(@RequestParam String username, @RequestParam @ApiParam("0：员工，1：家属") Integer userType) {
-        final boolean usernameExist = AppRegisterLoginHandler.values()[userType].isUsernameExist(username);
-        return R.ok().put("exist", usernameExist);
-    }
-
 
     @ApiOperation("移动端用户注册")
     @PostMapping("/register")
     public R register(@RequestBody AppRegisterForm form) {
-        AppRegisterLoginHandler.values()[form.getUserType()].register(form);
+        ValidatorUtils.validateEntity(form);
+        // 验证邮箱
+        final String key = keyPrefix + ":" + form.getEmail();
+        final String captchaInRedis = redisTemplate.opsForValue().get(key);
+        if (!StringUtils.equals(form.getCaptcha(), captchaInRedis)) {
+            throw new RRException("验证码错误");
+        }
+        String salt = RandomStringUtils.randomAlphanumeric(20);
+        final MemberEntity familyUserEntity = new MemberEntity()
+                .setAvatar(form.getAvatar())
+                .setUsername(form.getUsername())
+                .setPassword(new Sha256Hash(form.getPassword(), salt).toHex()) //sha256加密
+                .setSalt(salt)
+                .setEmail(form.getEmail());
+        try {
+            memberService.save(familyUserEntity);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            throw new RRException("用户名或邮箱已被注册");
+        }
+        // 消费验证码
+        redisTemplate.delete(key);
         return R.ok();
     }
 
@@ -81,108 +84,32 @@ public class AppLoginController {
     @PostMapping("/login")
     public R login(@RequestBody AppLoginForm form) {
         ValidatorUtils.validateEntity(form);
-        final UserRoleDto appUserRoleDto = AppRegisterLoginHandler.values()[form.getUserType()].login(form);
-        // 发放token
-        return R.ok().put("token", jwtUtils.generateToken(appUserRoleDto));
-    }
-
-    private static void checkPassword(String password, String salt, String formPassword) {
-        if (!StringUtils.equals(password, new Sha256Hash(formPassword, salt).toHex())) {
+        final MemberEntity member = Optional.ofNullable(memberService.lambdaQuery().eq(MemberEntity::getUsername, form.getUsername()).one())
+                .orElseThrow(() -> new RRException("用户名密码错误", HttpStatus.UNAUTHORIZED.value()));
+        if (!StringUtils.equals(member.getPassword(), new Sha256Hash(form.getPassword(), member.getSalt()).toHex())) {
             throw new RRException("用户名密码错误", HttpStatus.UNAUTHORIZED.value());
         }
-    }
-
-    private static void checkStatus(Integer status) {
-        if (status.equals(Constant.FALSE)) {
+        if (member.getStatus().equals(Constant.FALSE)) {
             throw new RRException("用户被禁用", HttpStatus.FORBIDDEN.value());
         }
+        // 模拟查询用户权限
+        List<String> roleList = Lists.newArrayList("user");
+        // 发放token
+        return R.ok().put("token", jwtUtils.generateToken(new UserRoleDto(member.getId(), roleList)));
     }
 
-    enum AppRegisterLoginHandler {
-        EMPLOYEE_USER {
-            @Override
-            public boolean isUsernameExist(String username) {
-                return sysUserService.lambdaQuery().eq(SysUserEntity::getUsername, username).one() != null;
-            }
-
-            @Override
-            public boolean isMobileExist(String mobile) {
-                return sysUserService.lambdaQuery().eq(SysUserEntity::getMobile, mobile).one() != null;
-            }
-
-            @Override
-            public void register(AppRegisterForm form) {
-                //sha256加密
-                String salt = RandomStringUtils.randomAlphanumeric(20);
-                final SysUserEntity sysUserEntity = SysUserEntity.builder()
-                        .username(form.getUsername())
-                        .password(new Sha256Hash(form.getPassword(), salt).toHex())
-                        .salt(salt)
-                        .mobile(form.getMobile())
-                        .status(Constant.TRUE)
-                        .createTime(LocalDateTime.now())
-                        .build();
-                try {
-                    sysUserService.save(sysUserEntity);
-                } catch (org.springframework.dao.DuplicateKeyException e) {
-                    throw new RRException("用户名或手机号已存在");
-                }
-            }
-
-            @Override
-            public UserRoleDto login(AppLoginForm form) {
-                final SysUserEntity sysUser = Optional.ofNullable(sysUserService.queryByUserName(form.getUsername()))
-                        .orElseThrow(() -> new RRException("用户名密码错误", HttpStatus.UNAUTHORIZED.value()));
-                checkPassword(sysUser.getPassword(), sysUser.getSalt(), form.getPassword());
-                checkStatus(sysUser.getStatus());
-                final List<String> roles = Optional.ofNullable(sysUserService.queryAllRoles(sysUser.getUserId())).orElse(new ArrayList<>());
-                return UserRoleDto.builder().type(form.getUserType()).userId(sysUser.getUserId()).roleList(roles).build();
-            }
-        },
-
-        FAMILY_USER {
-            @Override
-            public boolean isUsernameExist(String username) {
-                return appfamilyUserService.lambdaQuery().eq(AppfamilyUserEntity::getUsername, username).one() != null;
-            }
-
-            @Override
-            public boolean isMobileExist(String mobile) {
-                return appfamilyUserService.lambdaQuery().eq(AppfamilyUserEntity::getMobile, mobile).one() != null;
-            }
-
-            @Override
-            public void register(AppRegisterForm form) {
-                //sha256加密
-                String salt = RandomStringUtils.randomAlphanumeric(20);
-                final AppfamilyUserEntity familyUserEntity = new AppfamilyUserEntity()
-                        .setUsername(form.getUsername())
-                        .setPassword(new Sha256Hash(form.getPassword(), salt).toHex())
-                        .setSalt(salt)
-                        .setMobile(form.getMobile())
-                        .setStatus(Constant.TRUE)
-                        .setCreatedAt(LocalDateTime.now());
-                try {
-                    appfamilyUserService.save(familyUserEntity);
-                } catch (org.springframework.dao.DuplicateKeyException e) {
-                    throw new RRException("用户名或手机号已存在");
-                }
-            }
-
-            @Override
-            public UserRoleDto login(AppLoginForm form) {
-                final AppfamilyUserEntity familyUser = Optional.ofNullable(appfamilyUserService.lambdaQuery().eq(AppfamilyUserEntity::getUsername, form.getUsername()).one())
-                        .orElseThrow(() -> new RRException("用户名密码错误", HttpStatus.UNAUTHORIZED.value()));
-                checkPassword(familyUser.getPassword(), familyUser.getSalt(), form.getPassword());
-                checkStatus(familyUser.getStatus());
-                return UserRoleDto.builder().type(form.getUserType()).userId(familyUser.getId()).roleList(Lists.newArrayList(FAMILY_USER.toString())).build();
-            }
-        };
-
-        public abstract boolean isUsernameExist(String username);
-        public abstract boolean isMobileExist(String mobile);
-        public abstract void register(AppRegisterForm form);
-        public abstract UserRoleDto login(AppLoginForm form);
+    @ApiOperation(value = "获取邮箱验证码", notes = "发送验证码邮件到此邮箱")
+    @GetMapping("/send-email")
+    public R sendEmail(String username, String email) {
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(email)) {
+            return R.error("请输入用户名和邮箱");
+        }
+        memberService.checkUsername(username);
+        memberService.checkEmail(email);
+        //发送邮件
+        mailService.sendMail(email);
+        return R.ok("邮件发送成功");
     }
+
 
 }

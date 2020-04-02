@@ -11,10 +11,11 @@ public class RedisProperties {
 
     @Data
     public static class KeyPrefix {
-        // 数据字典的Key
+        // 数据字典
         private String dictionary = "";
-        // 购物车的Key
-        private String cart = "";
+        // 邮箱验证码
+        private String mailCaptcha = "";
+
     }
 
     private KeyPrefix keyPrefix = new KeyPrefix();

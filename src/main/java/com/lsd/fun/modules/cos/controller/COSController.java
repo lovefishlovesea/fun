@@ -21,7 +21,7 @@ import java.util.List;
  */
 @Slf4j
 @Api(tags = "文件相关接口")
-@RequestMapping("cos")
+@RequestMapping("/cos")
 @RestController
 public class COSController {
 

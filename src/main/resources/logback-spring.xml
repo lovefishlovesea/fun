@@ -118,7 +118,7 @@
         <logger name="org.apache.ibatis" level="${log.level}" additivity="true"/>
         <logger name="java.sql" level="${log.level}" additivity="true"/>
         <logger name="com.lsd.fun.modules.*.dao" level="${log.level}" additivity="true"/>
-        <logger name="net.qunzhi.rest" level="${log.level}" additivity="true">
+        <logger name="com.lsd.fun" level="${log.level}" additivity="true">
             <appender-ref ref="debugRollingFileAppender"/>
             <appender-ref ref="infoRollingFileAppender"/>
             <appender-ref ref="errorRollingFileAppender"/>
@@ -132,7 +132,7 @@
         <logger name="org.apache.ibatis" level="${log.level}" additivity="true"/>
         <logger name="java.sql" level="${log.level}" additivity="true"/>
         <logger name="com.lsd.fun.modules.*.dao" level="${log.level}" additivity="true"/>
-        <logger name="net.qunzhi.rest" level="${log.level}" additivity="true">
+        <logger name="com.lsd.fun" level="${log.level}" additivity="true">
             <appender-ref ref="consoleRollingFileAppender"/>
         </logger>
         <root level="info">

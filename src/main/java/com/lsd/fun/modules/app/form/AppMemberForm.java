@@ -12,17 +12,24 @@ import java.time.LocalDate;
  * Created by lsd
  * 2020-01-15 14:45
  */
-@EqualsAndHashCode(callSuper = true)
-@Api(tags = "App用户注册表单")
+@Api(tags = "App用户信息表单")
 @Data
-public class AppRegisterForm extends AppLoginForm {
+public class AppMemberForm{
+
+    @ApiModelProperty(hidden = true)
+    private Integer id;
+
+    private String phone;
 
     private Integer avatar;
 
-    @NotNull(message = "请输入邮箱")
     private String email;
 
-    @NotNull(message = "请输入验证码")
     private String captcha;
+
+    @ApiModelProperty("性别(-1:未知 1:男 2:女)")
+    private Integer sex;
+
+    private LocalDate birth;
 
 }

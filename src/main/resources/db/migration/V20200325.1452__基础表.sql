@@ -111,7 +111,8 @@ CREATE TABLE `sys_user`
     `create_time`    datetime(0)                                                   NULL DEFAULT NULL COMMENT '创建时间',
     PRIMARY KEY (`user_id`) USING BTREE,
     UNIQUE INDEX `username` (`username`) USING BTREE,
-    UNIQUE KEY `mobile` (`mobile`) USING BTREE
+    UNIQUE KEY `mobile` (`mobile`) USING BTREE,
+    UNIQUE KEY `email` (`email`) USING BTREE
 ) ENGINE = InnoDB
   CHARACTER SET = utf8mb4 COMMENT = '系统用户';
 
@@ -173,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `sys_dictionary_manage`
 
 CREATE TABLE IF NOT EXISTS `t_file`
 (
-    `id`                bigint(20)   NOT NULL AUTO_INCREMENT,
+    `id`                int(11)      NOT NULL AUTO_INCREMENT,
     `original_filename` varchar(255) NULL DEFAULT NULL COMMENT '原始文件名',
     `path`              varchar(500) NULL DEFAULT NULL COMMENT '存储路径',
     `size`              bigint(20)   NULL DEFAULT NULL COMMENT '对象大小（字节）',
@@ -281,7 +282,7 @@ CREATE TABLE IF NOT EXISTS `category`
 
 CREATE TABLE IF NOT EXISTS `commodity`
 (
-    `id`                    int(11)  NOT NULL,
+    `id`                    int(11)  NOT NULL AUTO_INCREMENT,
     `name`                  varchar(50)       DEFAULT NULL COMMENT '商品名',
     `price`                 decimal(10, 2)    DEFAULT NULL COMMENT '商品金额',
     `commodity_category_id` int(11)           DEFAULT NULL COMMENT '商品分类id',
@@ -296,7 +297,7 @@ CREATE TABLE IF NOT EXISTS `commodity`
 
 CREATE TABLE IF NOT EXISTS `commodity_category`
 (
-    `id`             int(11)  NOT NULL,
+    `id`             int(11)  NOT NULL AUTO_INCREMENT,
     `name`           varchar(50)       DEFAULT NULL COMMENT '类目ID',
     `pid`            int(11)           DEFAULT NULL COMMENT '父类别ID（一级类目为0）',
     `create_user_id` int(11)           DEFAULT NULL COMMENT '创建人（后台用户ID）',
@@ -320,28 +321,34 @@ CREATE TABLE IF NOT EXISTS `member_shop_like`
 
 
 
-CREATE TABLE IF NOT EXISTS `member`
+CREATE TABLE `member`
 (
-    `id`                 int(11)  NOT NULL,
-    `name`               varchar(255)      DEFAULT NULL COMMENT '会员名',
-    `password`           varchar(255)      DEFAULT NULL COMMENT '登录密码',
-    `sex`                varchar(255)      DEFAULT NULL COMMENT '性别（-1:未知 1:男 2:女）',
-    `phone`              varchar(255)      DEFAULT NULL,
-    `birth`              date     NULL COMMENT '出生日期',
-    `address_default_id` int(11)           DEFAULT NULL COMMENT '默认地址ID',
-    `member_channel`     int(4)            DEFAULT NULL COMMENT '会员注册渠道（1:IOS 2:android 3:微信小程序 4:微信公众号 5:h5）',
-    `mp_open_id`         varchar(32)       DEFAULT NULL COMMENT '微信公众号openId',
-    `status`             int(4)            DEFAULT NULL COMMENT '状态（0:禁用 1:启用）',
-    `created_at`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`)
+    `id`                 int(11)      NOT NULL AUTO_INCREMENT,
+    `username`           varchar(25)  NOT NULL COMMENT '会员用户名',
+    `password`           varchar(255) NOT NULL COMMENT '登录密码',
+    `sex`                tinyint(2)            DEFAULT '-1' COMMENT '性别（-1:未知 1:男 2:女）',
+    `salt`               varchar(255)          DEFAULT NULL COMMENT '盐',
+    `email`              varchar(100) NOT NULL COMMENT '邮箱',
+    `phone`              varchar(255)          DEFAULT NULL,
+    `birth`              date                  DEFAULT NULL COMMENT '出生日期',
+    `avatar`             int(11)               DEFAULT NULL COMMENT '头像',
+    `address_default_id` int(11)               DEFAULT NULL COMMENT '默认地址ID',
+    `member_channel`     int(4)                DEFAULT NULL COMMENT '会员注册渠道（1:IOS 2:android 3:微信小程序 4:微信公众号 5:h5）',
+    `mp_open_id`         varchar(32)           DEFAULT NULL COMMENT '微信公众号openId',
+    `status`             tinyint(2)   NOT NULL DEFAULT '1' COMMENT '状态（0:禁用 1:启用）',
+    `created_at`         datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`         datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `member_uk1` (`username`),
+    UNIQUE KEY `member_uk2` (`email`),
+    UNIQUE KEY `member_uk3` (`phone`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='会员表';
 
 
 CREATE TABLE IF NOT EXISTS `feedback`
 (
-    `id`               int(11)  NOT NULL,
+    `id`               int(11)  NOT NULL AUTO_INCREMENT,
     `member_id`        int(11)           DEFAULT NULL,
     `feedback_content` tinytext COMMENT '反馈内容',
     `feedback_type`    int(4)            DEFAULT NULL COMMENT '反馈类型（1:破损 2:缺货 3:错货 4:投诉）',
@@ -353,7 +360,7 @@ CREATE TABLE IF NOT EXISTS `feedback`
 
 CREATE TABLE IF NOT EXISTS `coupon`
 (
-    `id`             int(11)  NOT NULL,
+    `id`             int(11)  NOT NULL AUTO_INCREMENT,
     `coupon_name`    varchar(50)       DEFAULT NULL COMMENT '券名称',
     `coupon_price`   decimal(10, 2)    DEFAULT NULL COMMENT '券面金额（用于抵扣订单金额）',
     `create_user_id` int(11)           DEFAULT NULL COMMENT '创建人（后台用户ID）',

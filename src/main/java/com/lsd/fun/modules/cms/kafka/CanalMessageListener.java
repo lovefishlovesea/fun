@@ -90,7 +90,7 @@ public class CanalMessageListener {
             row.put("location", location.getLatitude() + "," + location.getLongitude());
             row.remove("address");
         }
-        // index to ES
+        // index to ES TODO 应改为 bulk api 批量更新
         for (Map<String, Object> map : needIndexDataList) {
             IndexRequest indexRequest = new IndexRequest(INDEX_NAME)
                     .id(String.valueOf(map.get("id")))

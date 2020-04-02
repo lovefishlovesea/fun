@@ -20,8 +20,4 @@ public class AppLoginForm {
     @NotNull(message = "请输入密码")
     private String password;
 
-    @NotNull(message = "请先选择用户类型")
-    @ApiModelProperty(value = "用户类型（0：员工，1：家属）")
-    private Integer userType;
-
 }
