@@ -3,13 +3,17 @@ package com.lsd.fun.modules.cms.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lsd.fun.common.exception.RRException;
 import com.lsd.fun.common.utils.BaseQuery;
 import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.common.utils.Query;
 import com.lsd.fun.modules.cms.dao.AreaDao;
 import com.lsd.fun.modules.cms.entity.AreaEntity;
+import com.lsd.fun.modules.cms.query.AreaQuery;
 import com.lsd.fun.modules.cms.service.AreaService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,6 +50,24 @@ public class AreaServiceImpl extends ServiceImpl<AreaDao, AreaEntity> implements
                 })
                 .filter(area -> area.getLevel() == 0)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AreaEntity> listSubArea(AreaQuery query) {
+        // 使用父级地区名查询
+        if (StringUtils.isNotBlank(query.getPName())) {
+            Integer pid = this.lambdaQuery()
+                    .select(AreaEntity::getId)
+                    .eq(AreaEntity::getName, query.getPName())
+                    .oneOpt()
+                    .map(AreaEntity::getId)
+                    .orElseThrow(() -> new RRException("暂不支持当前地区", HttpStatus.SC_NOT_FOUND));
+            query.setPid(pid);
+        }
+        return this.lambdaQuery()
+                .eq(query.getPid() != null, AreaEntity::getPid, query.getPid())
+                .eq(query.getLevel() != null, AreaEntity::getLevel, query.getLevel())
+                .list();
     }
 
 

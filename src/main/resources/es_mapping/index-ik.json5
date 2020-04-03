@@ -43,6 +43,15 @@
         "analyzer": "whitespace",
         "fielddata": true
       },
+      "province": {          //用于地图找房
+        "type": "keyword"
+      },
+      "city": {              //用于地图找房
+        "type": "keyword"
+      },
+      "region": {            //用于地图找房
+        "type": "keyword"
+      },
       "location": {
         "type": "geo_point"
       },

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lsd.fun.common.utils.BaseQuery;
 import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.modules.cms.entity.AreaEntity;
+import com.lsd.fun.modules.cms.query.AreaQuery;
 
 import java.util.List;
 
@@ -19,5 +20,7 @@ public interface AreaService extends IService<AreaEntity> {
     PageUtils queryPage(BaseQuery query);
 
     List<AreaEntity> listTree();
+
+    List<AreaEntity> listSubArea(AreaQuery query);
 }
 
