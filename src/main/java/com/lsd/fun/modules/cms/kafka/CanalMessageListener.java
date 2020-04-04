@@ -5,8 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.lsd.fun.common.utils.Constant;
+import com.lsd.fun.modules.app.dto.ShopIndexKey;
 import com.lsd.fun.modules.cms.dao.ShopDao;
 import com.lsd.fun.modules.cms.dto.BaiduMapLocation;
 import com.lsd.fun.modules.cms.service.BaiduLBSService;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -25,10 +27,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.alibaba.otter.canal.protocol.CanalEntry.*;
 
@@ -43,8 +43,8 @@ import static com.alibaba.otter.canal.protocol.CanalEntry.*;
 @Component
 public class CanalMessageListener {
 
-    public final static String CANAL_TOPIC = "example";
-    private final static String INDEX_NAME = "shop";
+    private static final String CANAL_TOPIC = "example";
+    private static final String DATABASE = "fun";
 
     @Autowired
     private ShopDao shopDao;
@@ -63,33 +63,41 @@ public class CanalMessageListener {
     public void handlerMessage(Message content) throws Exception {
         List<Entry> entries = content.getEntries();
         // 收集所有变更数据行的表名和id
-        ArrayListMultimap<String, Integer> changedRecordIdsMap = ArrayListMultimap.create();
+        ArrayListMultimap<String, Integer> upsertRecordIdsMap = ArrayListMultimap.create(); //数据变更队列
+        List<Integer> deletedShopIdList = new ArrayList<>();//shop表数据(逻辑)删除队列
         // 若有数据Row更新，则解析处理Binlog，获取所在表和id
         for (Entry entry : entries) {
-            changedRecordIdsMap.putAll(this.publishCanalEvent(entry));
+            this.parseCanalEvent(entry, upsertRecordIdsMap, deletedShopIdList);
         }
         // 去对应的table批量查询所有待更新数据
         List<Map<String, Object>> needIndexDataList = new ArrayList<>();
-        for (String table : changedRecordIdsMap.keySet()) {
-            List<Integer> ids = changedRecordIdsMap.get(table);
-            needIndexDataList.addAll(this.processOneBinlogRow(table, ids));
+        // upsert队列去对应table批量查询
+        for (String table : upsertRecordIdsMap.keySet()) {
+            List<Integer> ids = upsertRecordIdsMap.get(table);
+            needIndexDataList.addAll(this.queryLatestDataBatch(table, ids));
         }
         // 批量同步到ES
-        this.bulkIndex2ES(needIndexDataList);
+        this.bulkIndex2ES(needIndexDataList, deletedShopIdList);
     }
 
+
     /**
-     * 解析处理Binlog
+     * 解析处理Binlog，把待同步数据暂存在 upsert队列 和 deleted队列 中
      *
-     * @return @formatter:off   Map<table,List<idOfTable>>   @formatter:on
+     * @param upsertRecordIdsMap 插入或更新记录队列
+     * @param deletedShopIdList  shop表(逻辑)删除记录队列
      */
-    private Multimap<String, Integer> publishCanalEvent(Entry entry) throws IOException {
+    private void parseCanalEvent(Entry entry,
+                                 Multimap<String, Integer> upsertRecordIdsMap,
+                                 List<Integer> deletedShopIdList) throws IOException {
         Header header = entry.getHeader();
-//        EventType eventType = header.getEventType();
-//        String database = header.getSchemaName();
+//        EventType eventType = header.getEventType(); //若非逻辑删除应判断EventType
+        String database = header.getSchemaName();
+        if (!StringUtils.equals(database, DATABASE)) {
+            return;
+        }
         String table = header.getTableName();
         RowChange rowChange;
-        ArrayListMultimap<String, Integer> table2IdsMap = ArrayListMultimap.create();
         try {
             rowChange = RowChange.parseFrom(entry.getStoreValue());
         } catch (InvalidProtocolBufferException e) {
@@ -98,21 +106,21 @@ public class CanalMessageListener {
         }
         for (RowData rowData : rowChange.getRowDatasList()) {
             List<Column> columns = rowData.getAfterColumnsList();
-            // 获取主键列
-            for (Column col : columns) {
-                if (col.getIsKey() && StringUtils.equals(col.getName(), "id")) {
-                    table2IdsMap.put(table, new Integer(col.getValue()));
-                    break;
-                }
+            // 此行的所有列值转换为Map结构
+            Map<String, String> columnDataMap = columns.stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Column::getName, Column::getValue, (oldKey, newKey) -> newKey));
+            // 获取此行记录的主键列
+            final Integer id = new Integer(columnDataMap.get("id"));
+            // 若此行是逻辑删除shop则加入删除队列
+            if (StringUtils.equals(table, "shop") && Constant.TRUE.equals(new Integer(columnDataMap.get("disabled_flag")))) {
+                deletedShopIdList.add(id);
+            } else { //否则加入更新队列
+                upsertRecordIdsMap.put(table, id);
             }
-            // 列信息转换为Map结构
-//          Map<String, Integer> columnDataMap = columns.stream()
-//                  .filter(Objects::nonNull)
-//                  .collect(Collectors.toMap(Column::getName, Column::getValue, (oldKey, newKey) -> newKey));
-//          return columnDataMap;
         }
-        return table2IdsMap;
     }
+
 
     /**
      * 根据Binlog的变更数据行信息，去对应表中查询待同步到ES的数据
@@ -120,11 +128,11 @@ public class CanalMessageListener {
      * @param table      变更记录行所在数据表
      * @param idsOfTable 数据表中变更记录行的id列表
      */
-    private List<Map<String, Object>> processOneBinlogRow(String table, List<Integer> idsOfTable) {
+    private List<Map<String, Object>> queryLatestDataBatch(String table, List<Integer> idsOfTable) {
         if (CollectionUtils.isEmpty(idsOfTable)) {
             return Collections.emptyList();
         }
-        QueryWrapper<Object> wrapper = Wrappers.query();
+        QueryWrapper<Object> wrapper = Wrappers.query().eq("shop.disabled_flag", 0);
         switch (table) {
             case "seller":
                 wrapper.in("seller.id", idsOfTable);
@@ -154,16 +162,24 @@ public class CanalMessageListener {
      * 优化效果：不使用bulk的话306条记录同步需要>1分钟，优化后只需要
      *
      * @param needIndexDataList 当前Kafka所有Binlog消息解析后得到的待更新数据
+     * @param deletedShopIdList 待删除的索引数据
      */
-    private void bulkIndex2ES(List<Map<String, Object>> needIndexDataList) throws IOException {
+    private void bulkIndex2ES(List<Map<String, Object>> needIndexDataList, List<Integer> deletedShopIdList) throws IOException {
         // 应使用 Bulk Api 批量更新提高效率
         BulkRequest bulkReq = new BulkRequest()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);  //写入完成立即刷新;
         for (Map<String, Object> map : needIndexDataList) {
-            IndexRequest indexRequest = new IndexRequest(INDEX_NAME)
+            IndexRequest request = new IndexRequest(ShopIndexKey.INDEX_NAME)
                     .id(String.valueOf(map.get("id")))
                     .source(map);
-            bulkReq.add(indexRequest);
+            bulkReq.add(request);
+        }
+        for (Integer id : deletedShopIdList) {
+            DeleteRequest request = new DeleteRequest(ShopIndexKey.INDEX_NAME).id(id.toString());
+            bulkReq.add(request);
+        }
+        if (bulkReq.numberOfActions() == 0) {
+            return;
         }
         try {
             BulkResponse responses = rhlClient.bulk(bulkReq, RequestOptions.DEFAULT);
@@ -180,5 +196,6 @@ public class CanalMessageListener {
             throw e;
         }
     }
+
 
 }
