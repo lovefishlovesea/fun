@@ -136,7 +136,7 @@ public class ShopController {
     public R listExport(@RequestParam(required = false, defaultValue = "0") @ApiParam("是否导出模板，0：否，1：是") Integer isTemplate, HttpServletResponse response) {
         // 全部按照固定资产的列头导出，非固定的把对应列值填充空白即可
         Workbook workbook = excelWriterFactory.getWriter("shopExcelWriter")
-                .exportExcel(null, isTemplate == 1 ? null : shopService.queryAll());
+                .exportExcel(null, isTemplate == 1 ? null : shopService.queryList(null));
         OutputStream out = null;
         // 输出Excel文件流
         String excelName = isTemplate == 1 ? "商铺信息模板" : "商铺信息";

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.lsd.fun.modules.app.dto.ShopIndexKey;
 import com.lsd.fun.modules.cms.dao.ShopDao;
 import com.lsd.fun.modules.cms.dto.BaiduMapLocation;
 import com.lsd.fun.modules.cms.service.BaiduLBSService;
@@ -37,7 +38,6 @@ import java.util.*;
 public class CanalFlatMessageListener {
 
     public final static String CANAL_TOPIC = "example";
-    private final static String INDEX_NAME = "shop";
 
     @Autowired
     private Gson gson;
@@ -123,7 +123,7 @@ public class CanalFlatMessageListener {
         BulkRequest bulkReq = new BulkRequest()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);  //写入完成立即刷新;
         for (Map<String, Object> map : needIndexDataList) {
-            IndexRequest indexRequest = new IndexRequest(INDEX_NAME)
+            IndexRequest indexRequest = new IndexRequest(ShopIndexKey.INDEX_NAME)
                     .id(String.valueOf(map.get("id")))
                     .source(map);
             bulkReq.add(indexRequest);

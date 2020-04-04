@@ -4,6 +4,8 @@ import com.lsd.fun.modules.cms.entity.ShopEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * Created by lsd
  * 2020-03-26 11:08
@@ -21,4 +23,6 @@ public class ShopVO extends ShopEntity {
     // 封面是否爬取的
     private Integer isCrawl;
 
+    // 地图搜房页面的与用户距离(m)
+    private Integer distance;
 }

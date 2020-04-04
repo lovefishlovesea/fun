@@ -115,8 +115,10 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
     }
 
     @Override
-    public List<ShopVO> queryAll() {
-        Wrapper wrapper = Wrappers.query().eq("shop.disabled_flag", 0);
+    public List<ShopVO> queryList(Collection<Integer> ids) {
+        Wrapper wrapper = Wrappers.query()
+                .eq("shop.disabled_flag", 0)
+                .in(CollectionUtils.isNotEmpty(ids), "shop.id", ids);
         List<ShopVO> vos = this.baseMapper.queryPage(wrapper);
         addCoverUrlPrefix(vos);
         return vos;

@@ -77,9 +77,6 @@
       },
       "seller_remark_score": {
         "type": "double"
-      },
-      "disabled_flag": {
-        "type": "integer"
       }
     }
   }

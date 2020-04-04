@@ -8,6 +8,7 @@ import com.lsd.fun.modules.cms.dto.ShopVO;
 import com.lsd.fun.modules.cms.entity.ShopEntity;
 import com.lsd.fun.common.utils.BaseQuery;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public interface ShopService extends IService<ShopEntity> {
      */
     void saveFromExcelParsedResult(List<ShopExcelDTO> parsedResult, Integer isUpdate);
 
-    List<ShopVO> queryAll();
+    List<ShopVO> queryList(Collection<Integer> ids);
 
     ShopVO queryById(Integer id);
 

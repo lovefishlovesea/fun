@@ -30,7 +30,7 @@ import static com.alibaba.otter.canal.protocol.CanalEntry.*;
 @Deprecated  //转用 Canal+ Kafka 实现，弃用此方案
 public class CanalSchedule implements Runnable {
 
-    private final static String INDEX_NAME = "test";
+    private final static String INDEX_NAME = "shop";
 
     @Autowired
     private CanalConnector canalConnector;
