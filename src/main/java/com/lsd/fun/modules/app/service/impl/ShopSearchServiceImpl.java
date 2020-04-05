@@ -3,6 +3,7 @@ package com.lsd.fun.modules.app.service.impl;
 import com.lsd.fun.common.exception.RRException;
 import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.common.utils.ShopSortUtil;
+import com.lsd.fun.modules.app.dto.LocationDto;
 import com.lsd.fun.modules.app.dto.SearchResultDto;
 import com.lsd.fun.modules.app.query.MapSearchQuery;
 import com.lsd.fun.modules.app.vo.ShopBucketByArea;
@@ -116,15 +117,18 @@ public class ShopSearchServiceImpl implements ShopSearchService {
      * @param searchResult ES搜索结果
      */
     private PageUtils searchDB(Integer start, Integer size, SearchResultDto searchResult) {
-        final Map<Integer, Integer> id2DistanceMap = searchResult.getResultMap();
+        final Map<Integer, LocationDto> id2LocationMap = searchResult.getResultMap();
         final long total = searchResult.getTotal();
-        if (total == 0 || MapUtils.isEmpty(id2DistanceMap)) {
-            return new PageUtils(Collections.emptyList(), 0, 0);
+        if (total == 0 || MapUtils.isEmpty(id2LocationMap)) {
+            return new PageUtils(Collections.emptyList(), start, size, 0, false);
         }
         // 查询数据库
-        List<ShopVO> shopVOS = shopService.queryList(id2DistanceMap.keySet());
+        List<ShopVO> shopVOS = shopService.queryList(id2LocationMap.keySet());
         for (ShopVO vo : shopVOS) {
-            vo.setDistance(id2DistanceMap.get(vo.getId()));
+            LocationDto dto = id2LocationMap.get(vo.getId());
+            vo.setDistance(dto.getDistance());
+            vo.setLat(dto.getLat());
+            vo.setLng(dto.getLng());
         }
         return new PageUtils(shopVOS, start, size, (int) total, false);
     }
@@ -137,16 +141,16 @@ public class ShopSearchServiceImpl implements ShopSearchService {
      * @return Map<ID, 与用户的距离>
      */
     private SearchResultDto searchES(MapSearchQuery query, QueryBuilder qb) {
-        Map<Integer, Integer> resultMap = new HashMap<>();
+        Map<Integer, LocationDto> id2LocationMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
-        params.put("lon", query.getLon());
+        params.put("lon", query.getLng());
         params.put("lat", query.getLat());
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(qb)
                 .scriptField("distance",
                         new Script(ScriptType.INLINE, "expression", "haversin(lat,lon,doc['location'].lat,doc['location'].lon)", params)
                 )
-                .fetchSource(ShopIndexKey.ID, null)  //只查出houseId，避免其他无用数据浪费性能
+                .fetchSource(new String[]{ShopIndexKey.ID, ShopIndexKey.LOCATION}, null)  //只查出houseId，避免其他无用数据浪费性能
                 .sort(ShopSortUtil.getSortKey(query.getOrder_field()), SortOrder.fromString(query.getOrder()))
                 .from(query.getPage())
                 .size(query.getLimit());
@@ -156,16 +160,19 @@ public class ShopSearchServiceImpl implements ShopSearchService {
             final SearchResponse response = rhlClient.search(searchRequest, RequestOptions.DEFAULT);
             if (response.status() != RestStatus.OK) {
                 log.error("房源搜索失败，searchRequest = {}", searchRequest.toString());
-                return new SearchResultDto(0, resultMap);
+                return new SearchResultDto(0, id2LocationMap);
             }
             for (SearchHit hit : response.getHits().getHits()) {
-                int id = new Integer(String.valueOf(hit.getSourceAsMap().get(ShopIndexKey.ID)));
+                int id = new Integer(hit.getSourceAsMap().get(ShopIndexKey.ID).toString());
+                String location = hit.getSourceAsMap().get(ShopIndexKey.LOCATION).toString();
+                final String[] lat_lng = location.split(",");
                 BigDecimal distanceKm = new BigDecimal(hit.getFields().get(ShopIndexKey.DISTANCE).getValue().toString());
                 // km -> m 然后取整
                 int distanceM = distanceKm.multiply(BigDecimal.valueOf(1000).setScale(0, BigDecimal.ROUND_CEILING)).intValue();
-                resultMap.put(id, distanceM);
+
+                id2LocationMap.put(id, new LocationDto(distanceM, new Double(lat_lng[0]), new Double(lat_lng[1])));
             }
-            return new SearchResultDto(response.getHits().getTotalHits().value, resultMap);
+            return new SearchResultDto(response.getHits().getTotalHits().value, id2LocationMap);
         } catch (IOException e) {
             log.error("房源搜索失败", e);
             throw new RRException("获取房源信息失败", HttpStatus.SC_INTERNAL_SERVER_ERROR);

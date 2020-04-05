@@ -25,4 +25,6 @@ public class ShopVO extends ShopEntity {
 
     // 地图搜房页面的与用户距离(m)
     private Integer distance;
+    private double lat;
+    private double lng;
 }

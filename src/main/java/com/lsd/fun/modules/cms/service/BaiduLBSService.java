@@ -21,6 +21,13 @@ public interface BaiduLBSService {
 
     /**
      * 上传百度LBS数据
+     *
+     * @param location 百度经纬度
+     * @param title 标题
+     * @param address 完整地址
+     * @param houseId 房源id
+     * @param price 价格
+     * @param area 面积
      */
     void upload(BaiduMapLocation location, String title, String address,
                 Integer houseId, int price, int area);

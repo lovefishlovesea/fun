@@ -27,6 +27,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,7 @@ public class CanalMessageListener {
             "value.deserializer=com.alibaba.otter.canal.client.kafka.MessageDeserializer"
     })
     public void handlerMessage(Message content) throws Exception {
+        final long start = System.currentTimeMillis();
         List<Entry> entries = content.getEntries();
         // 收集所有变更数据行的表名和id
         ArrayListMultimap<String, Integer> upsertRecordIdsMap = ArrayListMultimap.create(); //数据变更队列
@@ -78,6 +80,9 @@ public class CanalMessageListener {
         }
         // 批量同步到ES
         this.bulkIndex2ES(needIndexDataList, deletedShopIdList);
+        // 批量同步到百度LBS云
+//        this.bulkIndex2LBS(needIndexDataList, deletedShopIdList);
+        log.info("本次同步耗时：{}s", (System.currentTimeMillis() - start) / 1000);
     }
 
 
@@ -152,14 +157,14 @@ public class CanalMessageListener {
         for (Map<String, Object> row : needIndexDataList) {
             BaiduMapLocation location = baiduLBSService.parseAddress2Location(row.get("address").toString());
             row.put("location", location.getLatitude() + "," + location.getLongitude());
-            row.remove("address");
+//            row.remove("address");
         }
         return needIndexDataList;
     }
 
     /**
      * Sync to ES
-     * 优化效果：不使用bulk的话306条记录同步需要>1分钟，优化后只需要
+     * 优化效果：不使用bulk的话306条记录同步需要>1分钟，优化后只需要？秒
      *
      * @param needIndexDataList 当前Kafka所有Binlog消息解析后得到的待更新数据
      * @param deletedShopIdList 待删除的索引数据
@@ -197,5 +202,30 @@ public class CanalMessageListener {
         }
     }
 
+
+    /**
+     * Sync to 百度LBS.云POI数据
+     *
+     * @param needIndexDataList 当前Kafka所有Binlog消息解析后得到的待更新数据
+     * @param deletedShopIdList 待删除的索引数据
+     * @deprecated 同步成功率过低，弃用
+     */
+    @Deprecated
+    private void bulkIndex2LBS(List<Map<String, Object>> needIndexDataList, List<Integer> deletedShopIdList) {
+        // 上传
+        for (Map<String, Object> shopVo : needIndexDataList) {
+            Integer id = new Integer(shopVo.get("id").toString());
+            Integer price = new Integer(shopVo.get("price_per_man").toString());
+            String title = shopVo.get("title").toString();
+            String address = shopVo.get("address").toString();
+            String[] lng_lat = shopVo.get("location").toString().split(",");
+            BaiduMapLocation location = new BaiduMapLocation(new Double(lng_lat[0]), new Double(lng_lat[1]));
+            baiduLBSService.upload(location, title, address, id, price, 0);
+        }
+        // 删除
+        for (Integer id : deletedShopIdList) {
+            baiduLBSService.remove(id);
+        }
+    }
 
 }

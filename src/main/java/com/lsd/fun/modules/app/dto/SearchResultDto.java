@@ -16,7 +16,7 @@ public class SearchResultDto {
 
     private long total;
 
-    // Map<ID, 与用户的距离(m)>
-    private Map<Integer, Integer> resultMap;
+    // Map<ID, 位置信息>
+    private Map<Integer, LocationDto> resultMap;
 
 }

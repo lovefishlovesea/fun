@@ -124,6 +124,7 @@ public class BaiduLBSServiceImpl implements BaiduLBSService {
             log.error("poi数据上传失败", e);
             throw new RRException("poi数据上传失败", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
+        log.debug("poi数据上传成功，houseId = {}", houseId);
     }
 
     /**
@@ -146,7 +147,7 @@ public class BaiduLBSServiceImpl implements BaiduLBSService {
             }
             final JsonObject resultJson = gson.fromJson(resultStr, JsonObject.class);
             // LBS云不存在此POI数据
-            if (resultJson.get("size").getAsInt() == 0) {
+            if (resultJson.get("size").isJsonNull() || resultJson.get("size").getAsInt() == 0) {
                 return new JsonArray();
             }
             return resultJson.get("pois").getAsJsonArray();
@@ -190,6 +191,7 @@ public class BaiduLBSServiceImpl implements BaiduLBSService {
             log.error("请求删除poi数据接口失败", e);
             throw new RRException("请求删除poi数据接口失败", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
+        log.debug("poi数据删除成功，houseId = {}", houseId);
     }
 
 }

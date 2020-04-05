@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class MapSearchQuery extends BaseQuery {
 
-    @NotBlank(message = "请选择城市")
+    @NotBlank(message = "暂未支持该城市")
     @ApiModelProperty("当前城市名称")
     private String city;
 
@@ -25,7 +25,7 @@ public class MapSearchQuery extends BaseQuery {
     private int level = 12;
 
     @ApiModelProperty("用户当前经度")
-    private double lon;
+    private double lng;
     @ApiModelProperty("用户当前纬度")
     private double lat;
 

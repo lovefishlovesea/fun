@@ -1,6 +1,7 @@
 package com.lsd.fun.common.utils;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,23 +13,33 @@ import java.util.List;
  */
 public class PageUtils implements Serializable {
     private static final long serialVersionUID = 1L;
-    /** 总记录数 */
+    /**
+     * 总记录数
+     */
     private int totalCount;
-    /** 每页记录数 */
+    /**
+     * 每页记录数
+     */
     private int pageSize;
-    /** 总页数 */
+    /**
+     * 总页数
+     */
     private int totalPage;
-    /** 当前页数 */
+    /**
+     * 当前页数
+     */
     private int currPage;
-    /** 列表数据 */
+    /**
+     * 列表数据
+     */
     private List<?> list;
 
     /**
      * list 构造方法
      *
-     * @param list 列表数据
-     * @param currPage 当前页数
-     * @param pageSize 每页记录数
+     * @param list           列表数据
+     * @param currPage       当前页数
+     * @param pageSize       每页记录数
      * @param needPagination 是否需要使用 java subList 对 list 逻辑分页
      */
     public PageUtils(
@@ -68,7 +79,7 @@ public class PageUtils implements Serializable {
     /**
      * java subList 手动分页
      *
-     * @param list 列表数据
+     * @param list     列表数据
      * @param currPage 当前页数
      * @param pageSize 每页记录数
      */
@@ -102,7 +113,9 @@ public class PageUtils implements Serializable {
         }
     }
 
-    /** mybatis-plus 物理分页 */
+    /**
+     * mybatis-plus 物理分页
+     */
     public PageUtils(IPage<?> page) {
         this.list = page.getRecords();
         this.totalCount = (int) page.getTotal();

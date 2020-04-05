@@ -6,6 +6,7 @@ import com.lsd.fun.common.validator.ValidatorUtils;
 import com.lsd.fun.modules.app.query.MapSearchQuery;
 import com.lsd.fun.modules.app.vo.ShopBucketByArea;
 import com.lsd.fun.modules.app.service.ShopSearchService;
+import com.lsd.fun.modules.cms.dto.ShopVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -37,13 +38,13 @@ public class AppShopSearchController {
         return R.ok().put("data", aggResult);
     }
 
-    @ApiOperation(value = "根据地图缩放级别查询地图当前视野边界范围内的房源")
+    @ApiOperation(value = "根据地图缩放级别查询地图当前视野边界范围内的房源", response = ShopVO.class, responseContainer = "List")
     @GetMapping("/map-houses")
     public R mapSearchHouse(MapSearchQuery query) {
         ValidatorUtils.validateEntity(query);
         // 如果缩放级别小于12则查询整个城市的房源
         PageUtils pageUtils;
-        if (query.getLevel() < 13) {
+        if (query.getLevel() < 12) {
             pageUtils = shopSearchService.mapSearchByCity(query);
         } else {
             // 放大后的地图查询必须要传递当前地图视野的边界参数

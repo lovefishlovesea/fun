@@ -29,6 +29,7 @@
     }
   },
   "mappings": {
+    "dynamic": false,  //设置索引不允许加入新字段
     "properties": {
       "id": {
         "type": "integer"
