@@ -73,4 +73,40 @@
             ${ew.customSqlSegment}
     </select>
 
+
+    <select id="listOrderByField" resultType="com.lsd.fun.modules.cms.dto.ShopVO">
+        select shop.id,
+               shop.title,
+               shop.description,
+               shop.remark_score,
+               shop.price_per_man,
+               shop.province,
+               shop.city,
+               shop.region,
+               shop.address,
+               shop.category_id,
+               shop.tags,
+               shop.created_at,
+               shop.updated_at,
+               shop.seller_id,
+               shop.disabled_flag,
+               category.name as category,
+               seller.name   as seller,
+               cover.path    as cover_url,
+               cover.is_crawl
+        from shop
+                 left join category on category.id = shop.category_id
+                 left join seller on seller.id = shop.seller_id
+                 left join t_file cover on cover.id = shop.cover_file_id
+        where shop.id in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+          and shop.disabled_flag = 0
+        order by field
+        <foreach collection="ids" item="item" open="(shop.id," separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>

@@ -115,10 +115,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
     }
 
     @Override
-    public List<ShopVO> queryList(Collection<Integer> ids) {
-        Wrapper wrapper = Wrappers.query()
-                .eq("shop.disabled_flag", 0)
-                .in(CollectionUtils.isNotEmpty(ids), "shop.id", ids);
+    public List<ShopVO> queryList(Wrapper wrapper) {
         List<ShopVO> vos = this.baseMapper.queryPage(wrapper);
         addCoverUrlPrefix(vos);
         return vos;
@@ -163,6 +160,11 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
                 .filter(Objects::nonNull)
                 .forEach(fid -> tFileService.deleteById(fid));
         this.removeByIds(idList);
+    }
+
+    @Override
+    public List<ShopVO> listOrderByField(Collection<Integer> keySet) {
+        return this.baseMapper.listOrderByField(keySet);
     }
 
     /**

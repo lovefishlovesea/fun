@@ -14,9 +14,8 @@ public class ShopSortUtil {
 
     private static final Set<String> SORT_KEYS = Sets.newHashSet(
             DEFAULT_SORT_KEY,
-            "price",
-            "area",
-            "distance"
+            "price_per_man",
+            "area"
     );
 
     public static Sort getSort(String key, String directionKey) {
