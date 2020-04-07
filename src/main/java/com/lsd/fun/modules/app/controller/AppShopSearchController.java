@@ -4,9 +4,11 @@ import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.common.utils.R;
 import com.lsd.fun.common.validator.ValidatorUtils;
 import com.lsd.fun.modules.app.query.MapSearchQuery;
+import com.lsd.fun.modules.app.query.ShopSearchQuery;
 import com.lsd.fun.modules.app.vo.ShopBucketByArea;
 import com.lsd.fun.modules.app.service.ShopSearchService;
-import com.lsd.fun.modules.cms.dto.ShopVO;
+import com.lsd.fun.modules.app.vo.ShopSearchResult;
+import com.lsd.fun.modules.cms.vo.ShopVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -53,5 +55,25 @@ public class AppShopSearchController {
         boolean more = pageUtils.getTotalCount() > (query.getPage() + query.getLimit());
         return R.ok().put("data", pageUtils).put("more", more);
     }
+
+
+    @ApiOperation("搜索服务")
+    @GetMapping("/search")
+    public R search(ShopSearchQuery query) {
+        ValidatorUtils.validateEntity(query);
+        ShopSearchResult result = shopSearchService.search(query);
+        return R.ok().put("data", result).put("more", result.getTotal() > (query.getPage() + query.getLimit()));
+    }
+
+    @ApiOperation("搜索输入自动补全提示")
+    @GetMapping("/search-as-you-type")
+    public R searchAsUType(@RequestParam(value = "prefix") String prefix) {
+        if (StringUtils.isBlank(prefix)) {
+            return R.error(HttpStatus.SC_BAD_REQUEST,"输入字符不能为空");
+        }
+        List<String> result = shopSearchService.searchAsUType(prefix);
+        return R.ok().put("data", result);
+    }
+
 
 }

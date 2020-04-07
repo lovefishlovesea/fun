@@ -1,15 +1,22 @@
-package com.lsd.fun.modules.cms.kafka;
+package com.lsd.fun.modules.cms.canal_kafka;
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.otter.canal.protocol.Message;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.lsd.fun.common.utils.Constant;
 import com.lsd.fun.modules.app.dto.ShopIndexKey;
+import com.lsd.fun.modules.app.service.ShopSearchService;
 import com.lsd.fun.modules.cms.dao.ShopDao;
 import com.lsd.fun.modules.cms.dto.BaiduMapLocation;
+import com.lsd.fun.modules.cms.dto.ShopSuggest;
 import com.lsd.fun.modules.cms.service.BaiduLBSService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,7 +34,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +59,10 @@ public class CanalMessageListener {
     private BaiduLBSService baiduLBSService;
     @Autowired
     private RestHighLevelClient rhlClient;
+    @Autowired
+    private ShopSearchService shopSearchService;
+    @Autowired
+    private Gson gson;
 
     /**
      * canal.mq.flatMessage = false的情况，手动解析Canal二进制形式（protobuf格式）的Message
@@ -154,10 +164,13 @@ public class CanalMessageListener {
         // 一条数据Row是一个Map，返回这种结构方便 ES API 直接使用
         List<Map<String, Object>> needIndexDataList = shopDao.queryNeedIndexRow(wrapper);
         // 调用百度LBS把地址"address"字段替换为经纬度"location"
-        for (Map<String, Object> row : needIndexDataList) {
-            BaiduMapLocation location = baiduLBSService.parseAddress2Location(row.get("address").toString());
-            row.put("location", location.getLatitude() + "," + location.getLongitude());
-//            row.remove("address");
+        for (Map<String, Object> shopVoRow : needIndexDataList) {
+            BaiduMapLocation location = baiduLBSService.parseAddress2Location(shopVoRow.get("address").toString());
+            shopVoRow.put("location", location.getLatitude() + "," + location.getLongitude());
+//            shopVoRow.remove("address");  //map已经设置为了dynamic=false,可以不去删除map中的多余字段
+            // 索引中存储的自动补全关键词列表
+            List<ShopSuggest> shopSuggests = shopSearchService.analyzeSuggestion(shopVoRow);
+            shopVoRow.put(ShopIndexKey.SUGGESTION, JSONUtil.parseArray(shopSuggests));
         }
         return needIndexDataList;
     }

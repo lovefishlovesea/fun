@@ -1,4 +1,4 @@
-package com.lsd.fun.modules.cms.dto;
+package com.lsd.fun.modules.cms.vo;
 
 import com.lsd.fun.modules.cms.entity.ShopEntity;
 import lombok.Data;

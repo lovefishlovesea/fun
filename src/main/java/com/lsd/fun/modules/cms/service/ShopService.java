@@ -5,14 +5,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.modules.cms.controller.ShopQuery;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
-import com.lsd.fun.modules.cms.dto.ShopVO;
+import com.lsd.fun.modules.cms.vo.ShopVO;
 import com.lsd.fun.modules.cms.entity.ShopEntity;
-import com.lsd.fun.common.utils.BaseQuery;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * 店铺表

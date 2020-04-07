@@ -6,7 +6,7 @@ import com.lsd.fun.modules.cms.entity.CategoryEntity;
 import com.lsd.fun.modules.cms.entity.SellerEntity;
 import com.lsd.fun.modules.cms.service.CategoryService;
 import com.lsd.fun.modules.cms.service.SellerService;
-import com.lsd.fun.modules.cms.dto.ShopVO;
+import com.lsd.fun.modules.cms.vo.ShopVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.ss.usermodel.Cell;

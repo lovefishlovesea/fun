@@ -10,7 +10,7 @@ import com.lsd.fun.common.annotation.SysLog;
 import com.lsd.fun.common.utils.excel.ExcelReader;
 import com.lsd.fun.common.utils.excel.writer.ExcelWriterFactory;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
-import com.lsd.fun.modules.cms.dto.ShopVO;
+import com.lsd.fun.modules.cms.vo.ShopVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

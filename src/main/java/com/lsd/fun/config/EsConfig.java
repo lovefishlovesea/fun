@@ -21,7 +21,7 @@ import java.util.List;
  * Created by lsd
  * 2020-01-28 23:59
  */
-//@Configuration
+@Configuration
 public class EsConfig {
 
     @Value("#{'${fun.elasticsearch.node-list}'.split(',')}")
