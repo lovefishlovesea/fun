@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Api(tags = "App购物车")
 @RequestMapping("app/cart")
 @RestController
@@ -21,7 +23,7 @@ public class AppCartController {
 
     @AppLogin
     @ApiOperation("查询购物车列表")
-    @PostMapping("/list")
+    @GetMapping("/list")
     public R list(@AppLoginUser UserRoleDto dto) {
         return R.ok().put(
                 "list",
@@ -31,22 +33,18 @@ public class AppCartController {
     @AppLogin
     @ApiOperation("新增/更新购物车商品")
     @PostMapping("/save")
-    public R save(CartDto dto, @AppLoginUser UserRoleDto userRoleDto) {
+    public R save(@RequestBody CartDto dto, @AppLoginUser UserRoleDto userRoleDto) {
         CartService.save(dto, userRoleDto.getUserId().longValue());
         return R.ok();
     }
 
     @AppLogin
     @ApiOperation("删除购物车商品")
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     public R delete(
-            @RequestParam @ApiParam("点餐类型，0：食物 1：食谱") Integer type,
-            @RequestParam Long goodsId,
+            @RequestBody String[] goodsIds,
             @AppLoginUser UserRoleDto userRoleDto) {
-        return CartService.deleteByGoodsId(
-                goodsId,
-                userRoleDto.getUserId().longValue())
-                ? R.ok()
-                : R.error("删除失败");
+        CartService.deleteByGoodsId(userRoleDto.getUserId().longValue(),goodsIds);
+        return R.ok();
     }
 }

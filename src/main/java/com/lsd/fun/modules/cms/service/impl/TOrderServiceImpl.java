@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,6 +69,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderDao, TOrderEntity> impl
         final Long orderId = IdWorker.getId();
         final Long userId = userRoleDto.getUserId().longValue();
         final String cartKey = cartService.getUserKey(userId);
+        List<String> boughtGoods = Lists.newArrayListWithCapacity(form.getOrderDetails().size());
         BoundHashOperations<String, String, Object> cartObjMap = redisTemplate.boundHashOps(cartKey);
         // 遍历全部商品详情，根据用户选中购物车的商品进行下单
         final List<String> goodsKeys = form.getOrderDetails()
@@ -77,6 +79,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderDao, TOrderEntity> impl
                     if (!Optional.ofNullable(cartObjMap.hasKey(goodKey)).orElse(false)) {
                         throw new RRException("购物车不存在该商品:" + od.getShopName(), HttpStatus.SC_BAD_REQUEST);
                     }
+                    boughtGoods.add(goodKey);
                     return goodKey;
                 })
                 .collect(Collectors.toList());
@@ -114,10 +117,8 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderDao, TOrderEntity> impl
                 .setPayPrice(totalPrice)
                 .setStatus(2);  //简化为直接订单已完成
         this.save(tOrder);
-        // 清空购物车
-        if (!cartService.deleteByUserId(userId)) {
-            log.error("清空购物车失败，userId = " + userId);
-        }
+        // 删除购物车中的已结算商品
+        cartObjMap.delete(boughtGoods.toArray());
         // TODO 通知管理后台有新订单
     }
 

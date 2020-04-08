@@ -1,5 +1,6 @@
 package com.lsd.fun.modules.app.service;
 
+import cn.hutool.json.JSONArray;
 import com.google.gson.Gson;
 import com.lsd.fun.common.exception.RRException;
 import com.lsd.fun.common.validator.ValidatorUtils;
@@ -110,7 +111,7 @@ public class CartService {
             cartDto = gson.fromJson(cartJsonStr, CartDto.class);
             final int num = cartDto.getAmount() + addNum;
             if (num <= 0) {
-                this.deleteByGoodsId(goodsId, userId);
+                this.deleteByGoodsId(userId,goodsId.toString());
                 return;
             }
             cartDto.setAmount(num)
@@ -141,21 +142,14 @@ public class CartService {
 
 
     /**
-     * 删除购物车的一个商品
+     * 删除购物车的商品
      */
     @Transactional
-    public Boolean deleteByGoodsId(Long goodsId, Long userId) {
+    public void deleteByGoodsId(Long userId, String... goodsIds) {
         // 查询购物车
         final BoundHashOperations<String, Object, Object> cartObjMap = redisTemplate.boundHashOps(getUserKey(userId));
-        final String goodsKey = goodsId.toString();
-        if (!cartObjMap.hasKey(goodsKey)) {
-            return true;
-        }
-//        String cartJsonStr = cartObjMap.get(goodsKey).toString();
-//        final CartDto cartDto = gson.fromJson(cartJsonStr, CartDto.class);
+        cartObjMap.delete(goodsIds);
         // 需要释放库存
-//       tFoodStockService.increaseStock(cartDto.getGoodsId(), cartDto.getAmount());
-        return cartObjMap.delete(goodsKey) == 1;
     }
 
     /**

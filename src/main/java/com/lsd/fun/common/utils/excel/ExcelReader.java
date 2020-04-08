@@ -237,7 +237,11 @@ public class ExcelReader {
         // 获取人均消费
         cell = row.getCell(cellNum++);
         String pricePerMan = convertCellValueToString(cell);
-        resultData.setPricePerMan(new Integer(pricePerMan));
+        if (StringUtils.isBlank(pricePerMan)){
+            resultData.setPricePerMan(0);
+        }else {
+            resultData.setPricePerMan(new Integer(pricePerMan));
+        }
 
         return resultData;
     }

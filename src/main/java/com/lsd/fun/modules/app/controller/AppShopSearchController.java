@@ -8,6 +8,7 @@ import com.lsd.fun.modules.app.query.ShopSearchQuery;
 import com.lsd.fun.modules.app.vo.ShopBucketByArea;
 import com.lsd.fun.modules.app.service.ShopSearchService;
 import com.lsd.fun.modules.app.vo.ShopSearchResult;
+import com.lsd.fun.modules.cms.service.ShopService;
 import com.lsd.fun.modules.cms.vo.ShopVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +30,8 @@ public class AppShopSearchController {
 
     @Autowired
     private ShopSearchService shopSearchService;
+    @Autowired
+    private ShopService shopService;
 
     @ApiOperation(value = "根据选定城市聚合子地区商铺信息")
     @GetMapping("/area")
@@ -75,5 +78,12 @@ public class AppShopSearchController {
         return R.ok().put("data", result);
     }
 
+
+    @ApiOperation("查看商品详情")
+    @GetMapping("/{id}")
+    public R save(@PathVariable("id") Integer id) {
+        ShopVO shop = shopService.queryById(id);
+        return R.ok().put("data", shop);
+    }
 
 }

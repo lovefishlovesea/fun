@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
 import com.lsd.fun.common.exception.RRException;
-import com.lsd.fun.common.utils.BaseQuery;
-import com.lsd.fun.common.utils.Constant;
-import com.lsd.fun.common.utils.PageUtils;
-import com.lsd.fun.common.utils.ShopSortUtil;
+import com.lsd.fun.common.utils.*;
 import com.lsd.fun.modules.app.dto.LocationDto;
 import com.lsd.fun.modules.app.dto.SearchResultDto;
 import com.lsd.fun.modules.app.dto.ShopIndexKey;
@@ -18,14 +15,17 @@ import com.lsd.fun.modules.app.vo.ShopBucketByArea;
 import com.lsd.fun.modules.app.vo.ShopSearchResult;
 import com.lsd.fun.modules.cms.dto.BaiduMapLocation;
 import com.lsd.fun.modules.cms.dto.ShopSuggest;
+import com.lsd.fun.modules.cms.entity.ShopEntity;
 import com.lsd.fun.modules.cms.vo.ShopVO;
 import com.lsd.fun.modules.cms.service.BaiduLBSService;
 import com.lsd.fun.modules.cms.service.ShopService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -60,6 +60,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -79,8 +83,8 @@ public class ShopSearchServiceImpl implements ShopSearchService {
 
     @PostConstruct
     public void iniCategoryId2WordMap() {
-        final List<String> foods = Lists.newArrayList("吃饭", "下午茶", "美食", "食物");
-        final List<String> hotels = Lists.newArrayList("休息", "睡觉", "住宿", "民宿", "酒店");
+        final List<String> foods = Lists.newArrayList("吃饭", "晚饭", "美食", "食物", "吃");
+        final List<String> hotels = Lists.newArrayList("休息", "睡觉", "住宿", "住", "民宿", "酒店");
         categoryId2WordMap.put(1, foods);
         categoryId2WordMap.put(2, hotels);
     }
@@ -131,7 +135,9 @@ public class ShopSearchServiceImpl implements ShopSearchService {
     @Override
     public PageUtils mapSearchByCity(MapSearchQuery query) {
         // ES搜索出此城市的所有房源id
-        QueryBuilder boolQB = QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(ShopIndexKey.CITY, query.getCity()));
+        QueryBuilder boolQB = QueryBuilders.boolQuery()
+                .filter(QueryBuilders.termQuery(ShopIndexKey.CATEGORY_ID, 2))
+                .filter(QueryBuilders.termQuery(ShopIndexKey.CITY, query.getCity()));
         final SearchResultDto searchResult = this.searchES(query, boolQB);
         return this.searchDB(query, searchResult);
     }
@@ -145,6 +151,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
                         new GeoPoint(query.getRightLatitude(), query.getRightLongitude())
                 );
         BoolQueryBuilder boolQB = QueryBuilders.boolQuery()
+                .filter(QueryBuilders.termQuery(ShopIndexKey.CATEGORY_ID, 2))
                 .filter(QueryBuilders.termQuery(ShopIndexKey.CITY, query.getCity()))
                 .filter(boundingBoxQB);
         final SearchResultDto searchResult = this.searchES(query, boolQB);

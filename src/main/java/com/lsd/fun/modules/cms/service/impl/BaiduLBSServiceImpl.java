@@ -65,13 +65,13 @@ public class BaiduLBSServiceImpl implements BaiduLBSService {
             JsonObject resultJson = gson.fromJson(resultStr, JsonObject.class);
             int status = resultJson.get("status").getAsInt();
             if (status != 0) {
-                log.error("百度地图地理编码服务地址解析错误，status = {}", status);
+                log.error("百度地图地理编码服务地址解析错误，status = {}，address = {}", status, address);
                 throw new RRException("百度地图地理编码服务地址解析错误", HttpStatus.SC_INTERNAL_SERVER_ERROR);
             }
             JsonObject locationJson = resultJson.getAsJsonObject("result").getAsJsonObject("location");
             return new BaiduMapLocation(locationJson.get("lng").getAsDouble(), locationJson.get("lat").getAsDouble());
         } catch (IOException e) {
-            log.error("百度地图地理编码服务Web API接口调用失败", e);
+            log.error("百度地图地理编码服务Web API接口调用失败，address = " + address, e);
             throw new RRException("百度地图地理编码服务Web API接口调用失败", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
     }

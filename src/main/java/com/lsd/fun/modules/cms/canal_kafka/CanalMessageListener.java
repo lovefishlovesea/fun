@@ -165,8 +165,12 @@ public class CanalMessageListener {
         List<Map<String, Object>> needIndexDataList = shopDao.queryNeedIndexRow(wrapper);
         // 调用百度LBS把地址"address"字段替换为经纬度"location"
         for (Map<String, Object> shopVoRow : needIndexDataList) {
-            BaiduMapLocation location = baiduLBSService.parseAddress2Location(shopVoRow.get("address").toString());
-            shopVoRow.put("location", location.getLatitude() + "," + location.getLongitude());
+            try {
+                BaiduMapLocation location = baiduLBSService.parseAddress2Location(shopVoRow.get("address").toString());
+                shopVoRow.put("location", location.getLatitude() + "," + location.getLongitude());
+            } catch (Exception e) {
+                shopVoRow.put("location", "0,0");
+            }
 //            shopVoRow.remove("address");  //map已经设置为了dynamic=false,可以不去删除map中的多余字段
             // 索引中存储的自动补全关键词列表
             List<ShopSuggest> shopSuggests = shopSearchService.analyzeSuggestion(shopVoRow);
