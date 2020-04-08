@@ -91,6 +91,7 @@ fun:
     keyPrefix:
       dictionary: fun:dictionary
       mail-captcha: fun:mail_captcha
+      cart: fun:cart
   elasticsearch:
     node-list: 127.0.0.1:9200
   max-suggest: 5

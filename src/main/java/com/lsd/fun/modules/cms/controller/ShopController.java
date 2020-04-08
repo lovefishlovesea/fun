@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
  * @email syndaliang@foxmail.com
  * @date 2020-03-26 01:29:43
  */
-@Api(tags = "店铺")
+@Api(tags = "店铺", value = "此系统为了简化也把店铺看做商品")
 @RestController
 @RequestMapping("cms/shop")
 public class ShopController {

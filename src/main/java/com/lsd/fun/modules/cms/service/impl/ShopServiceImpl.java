@@ -84,7 +84,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
                         .setCategoryId(r.getCategory() == null ? null : category2IdMap.get(r.getCategory()))
                         .setSellerId(r.getSeller() == null ? null : seller2IdMap.get(r.getSeller()));
             } catch (Exception e) {
-                log.error("第" + r.getRow() + "行数据导入出错，请稍候再试");
+                log.error("第" + r.getRow() + "行数据导入出错，请稍候再试", e);
                 throw new RRException("第" + r.getRow() + "行数据导入出错，请稍候再试");
             }
         }).collect(Collectors.toList());
@@ -169,7 +169,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
      */
     private void addCoverUrlPrefix(List<ShopVO> vos) {
         for (ShopVO vo : vos) {
-            if (vo.getIsCrawl() == 0) {
+            if (vo.getCoverFileId() != null && vo.getIsCrawl() == 0) {
                 vo.setCoverUrl(qiNiuProperties.getHostPrefix() + vo.getCoverUrl());
             }
         }

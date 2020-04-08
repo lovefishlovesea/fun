@@ -20,7 +20,7 @@ public class CouponOrderEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 */
 	@TableId
 	private Integer id;
@@ -35,7 +35,7 @@ public class CouponOrderEntity implements Serializable {
 	/**
 	 * 商品订单ID
 	 */
-	private Integer orderId;
+	private Long orderId;
 	/**
 	 * 创建时间
 	 */

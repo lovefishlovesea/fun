@@ -280,33 +280,33 @@ CREATE TABLE IF NOT EXISTS `category`
   DEFAULT CHARSET = utf8mb4 COMMENT ='商铺类别表';
 
 
-CREATE TABLE IF NOT EXISTS `commodity`
-(
-    `id`                    int(11)  NOT NULL AUTO_INCREMENT,
-    `name`                  varchar(50)       DEFAULT NULL COMMENT '商品名',
-    `price`                 decimal(10, 2)    DEFAULT NULL COMMENT '商品金额',
-    `commodity_category_id` int(11)           DEFAULT NULL COMMENT '商品分类id',
-    `create_user_id`        int(11)           DEFAULT NULL COMMENT '创建人（后台用户ID）',
-    `status`                int(4)            DEFAULT NULL COMMENT '状态（0:禁用 1:启用）',
-    `created_at`            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at`            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='商品表';
-
-
-CREATE TABLE IF NOT EXISTS `commodity_category`
-(
-    `id`             int(11)  NOT NULL AUTO_INCREMENT,
-    `name`           varchar(50)       DEFAULT NULL COMMENT '类目ID',
-    `pid`            int(11)           DEFAULT NULL COMMENT '父类别ID（一级类目为0）',
-    `create_user_id` int(11)           DEFAULT NULL COMMENT '创建人（后台用户ID）',
-    `status`         int(4)            DEFAULT NULL COMMENT '状态（0:禁用 1:启用）',
-    `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='商品类别表';
+# CREATE TABLE IF NOT EXISTS `commodity`
+# (
+#     `id`                    int(11)  NOT NULL AUTO_INCREMENT,
+#     `name`                  varchar(50)       DEFAULT NULL COMMENT '商品名',
+#     `price`                 decimal(10, 2)    DEFAULT NULL COMMENT '商品金额',
+#     `commodity_category_id` int(11)           DEFAULT NULL COMMENT '商品分类id',
+#     `create_user_id`        int(11)           DEFAULT NULL COMMENT '创建人（后台用户ID）',
+#     `status`                int(4)            DEFAULT NULL COMMENT '状态（0:禁用 1:启用）',
+#     `created_at`            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+#     `updated_at`            datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+#     PRIMARY KEY (`id`)
+# ) ENGINE = InnoDB
+#   DEFAULT CHARSET = utf8mb4 COMMENT ='商品表';
+#
+#
+# CREATE TABLE IF NOT EXISTS `commodity_category`
+# (
+#     `id`             int(11)  NOT NULL AUTO_INCREMENT,
+#     `name`           varchar(50)       DEFAULT NULL COMMENT '类目ID',
+#     `pid`            int(11)           DEFAULT NULL COMMENT '父类别ID（一级类目为0）',
+#     `create_user_id` int(11)           DEFAULT NULL COMMENT '创建人（后台用户ID）',
+#     `status`         int(4)            DEFAULT NULL COMMENT '状态（0:禁用 1:启用）',
+#     `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+#     `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+#     PRIMARY KEY (`id`)
+# ) ENGINE = InnoDB
+#   DEFAULT CHARSET = utf8mb4 COMMENT ='商品类别表';
 
 
 CREATE TABLE IF NOT EXISTS `member_shop_like`
@@ -383,6 +383,38 @@ CREATE TABLE IF NOT EXISTS `coupon_member`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='会员-抵扣券中间表';
+
+CREATE TABLE `t_order`
+(
+    `id`           bigint(20) NOT NULL COMMENT '订单ID',
+    `member_id`    int(11)             DEFAULT NULL COMMENT '会员ID',
+    `origin_price` decimal(10, 2)      DEFAULT NULL COMMENT '订单原价',
+    `pay_price`    decimal(10, 2)      DEFAULT NULL COMMENT '订单实付',
+#     `shop_id`      int(11)        DEFAULT NULL COMMENT '门店ID',
+#     `shop_name`    varchar(50)    DEFAULT NULL COMMENT '门店名称',
+    `status`       tinyint(2)          DEFAULT NULL COMMENT '订单状态（1:进行中 2:已完成 3:已取消）',
+    `created_at`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`   datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='订单表';
+
+
+CREATE TABLE `t_order_commodity`
+(
+    `id`         int(11)    NOT NULL AUTO_INCREMENT,
+    `order_id`   bigint(20) NOT NULL COMMENT '订单ID',
+    `shop_id`    int(11)             DEFAULT NULL COMMENT '商品ID',
+    `shop_name`  varchar(255)         DEFAULT NULL COMMENT '商品名称',
+    `num`        int(4)              DEFAULT NULL COMMENT '商品数量',
+    `price`      decimal(10, 2)      DEFAULT NULL COMMENT '商品金额',
+    `created_at` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_t_order_commodity_order_id_commodity_id` (`order_id`, `shop_id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1001
+  DEFAULT CHARSET = utf8mb4 COMMENT ='订单详情表';
 
 
 CREATE TABLE IF NOT EXISTS `coupon_order`
