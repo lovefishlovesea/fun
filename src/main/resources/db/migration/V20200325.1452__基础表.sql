@@ -346,6 +346,19 @@ CREATE TABLE `member`
   DEFAULT CHARSET = utf8mb4 COMMENT ='会员表';
 
 
+CREATE TABLE `member_addr`
+(
+    `id`             int(11)  NOT NULL AUTO_INCREMENT,
+    `member_id`      int(11)           DEFAULT NULL COMMENT '会员id',
+    `contact_person` varchar(50)       DEFAULT NULL COMMENT '联系人',
+    `contact_phone`  varchar(50)       DEFAULT NULL COMMENT '联系电话',
+    `address`        varchar(255)      DEFAULT NULL COMMENT '地址',
+    `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `feedback`
 (
     `id`               int(11)  NOT NULL AUTO_INCREMENT,
@@ -405,7 +418,7 @@ CREATE TABLE `t_order_commodity`
     `id`         int(11)    NOT NULL AUTO_INCREMENT,
     `order_id`   bigint(20) NOT NULL COMMENT '订单ID',
     `shop_id`    int(11)             DEFAULT NULL COMMENT '商品ID',
-    `shop_name`  varchar(255)         DEFAULT NULL COMMENT '商品名称',
+    `shop_name`  varchar(255)        DEFAULT NULL COMMENT '商品名称',
     `num`        int(4)              DEFAULT NULL COMMENT '商品数量',
     `price`      decimal(10, 2)      DEFAULT NULL COMMENT '商品金额',
     `created_at` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -437,6 +450,24 @@ CREATE TABLE IF NOT EXISTS `recommend`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户-推荐商铺表';
 
+
+CREATE TABLE `t_delivery`
+(
+    `id`             int(11)  NOT NULL AUTO_INCREMENT,
+    `delivery_no`    varchar(64)       DEFAULT NULL COMMENT '配送单号',
+    `order_id`       int(11)           DEFAULT NULL,
+    `shop_id`        int(11)           DEFAULT NULL,
+    `sys_user_id`    int(11)           DEFAULT NULL COMMENT '配送员后台用户id',
+    `pick_time`      datetime          DEFAULT NULL COMMENT '取餐时间',
+    `arrive_time`    datetime          DEFAULT NULL COMMENT '送达时间',
+    `member_id`      int(11)           DEFAULT NULL COMMENT '会员id',
+    `member_addr_id` int(11)           DEFAULT NULL COMMENT '会员配送地址id',
+    `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 801
+  DEFAULT CHARSET = utf8mb4 COMMENT ='配送信息表';
 
 
 SET FOREIGN_KEY_CHECKS = 1;
