@@ -111,7 +111,7 @@ public class CartService {
             cartDto = gson.fromJson(cartJsonStr, CartDto.class);
             final int num = cartDto.getAmount() + addNum;
             if (num <= 0) {
-                this.deleteByGoodsId(userId,goodsId.toString());
+                this.deleteByGoodsId(userId, goodsId.toString());
                 return;
             }
             cartDto.setAmount(num)
@@ -155,8 +155,8 @@ public class CartService {
     /**
      * 删除整个购物车
      */
-    public Boolean deleteByUserId(Long userId) {
-        return redisTemplate.delete(getUserKey(userId));
+    public void deleteByUserId(Long userId) {
+        redisTemplate.delete(getUserKey(userId));
     }
 
 }

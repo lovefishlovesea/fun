@@ -145,7 +145,8 @@ CREATE TABLE `sys_user_token`
   CHARACTER SET = utf8mb4 COMMENT = '系统用户Token';
 
 
-CREATE TABLE IF NOT EXISTS `sys_data_dictionary`
+DROP TABLE IF EXISTS `sys_data_dictionary`;
+CREATE TABLE `sys_data_dictionary`
 (
     `id`         int(11)      NOT NULL AUTO_INCREMENT,
     `pid`        int(11)  DEFAULT NULL COMMENT '父节点id',
@@ -157,7 +158,8 @@ CREATE TABLE IF NOT EXISTS `sys_data_dictionary`
   CHARSET = utf8mb4 COMMENT ='数据字典';
 
 
-CREATE TABLE IF NOT EXISTS `sys_dictionary_manage`
+DROP TABLE IF EXISTS `sys_dictionary_manage`;
+CREATE TABLE `sys_dictionary_manage`
 (
     `id`         int(11)      NOT NULL AUTO_INCREMENT COMMENT '字典编号',
     `did`        int(11)      DEFAULT NULL COMMENT '数据字典id',
@@ -172,7 +174,8 @@ CREATE TABLE IF NOT EXISTS `sys_dictionary_manage`
   CHARSET = utf8mb4 COMMENT ='字典管理';
 
 
-CREATE TABLE IF NOT EXISTS `t_file`
+DROP TABLE IF EXISTS `t_file`;
+CREATE TABLE `t_file`
 (
     `id`                int(11)      NOT NULL AUTO_INCREMENT,
     `original_filename` varchar(255) NULL DEFAULT NULL COMMENT '原始文件名',
@@ -190,7 +193,8 @@ CREATE TABLE IF NOT EXISTS `t_file`
   CHARACTER SET = utf8mb4 COMMENT = '文件对象表';
 
 
-CREATE TABLE IF NOT EXISTS `seller`
+DROP TABLE IF EXISTS `seller`;
+CREATE TABLE `seller`
 (
     `id`            int(11)       NOT NULL AUTO_INCREMENT,
     `name`          varchar(80)   NOT NULL DEFAULT '' COMMENT '商家名称',
@@ -229,7 +233,8 @@ CREATE TABLE IF NOT EXISTS `seller`
 --   DEFAULT CHARSET = utf8mb4 COMMENT ='房源信息表';
 
 
-CREATE TABLE IF NOT EXISTS `area`
+DROP TABLE IF EXISTS `area`;
+CREATE TABLE `area`
 (
     `id`         int(11)      NOT NULL AUTO_INCREMENT,
     `pid`        int(11)      NOT NULL DEFAULT 0 COMMENT '父级id（一级为0）',
@@ -243,7 +248,8 @@ CREATE TABLE IF NOT EXISTS `area`
 
 
 
-CREATE TABLE IF NOT EXISTS `shop`
+DROP TABLE IF EXISTS `shop`;
+CREATE TABLE `shop`
 (
     `id`            int(11)       NOT NULL AUTO_INCREMENT,
     `title`         varchar(80)   NOT NULL DEFAULT '' COMMENT '商铺标题',
@@ -266,7 +272,8 @@ CREATE TABLE IF NOT EXISTS `shop`
   DEFAULT CHARSET = utf8mb4 COMMENT ='店铺表';
 
 
-CREATE TABLE IF NOT EXISTS `category`
+DROP TABLE IF EXISTS `category`;
+CREATE TABLE `category`
 (
     `id`         int(11)      NOT NULL AUTO_INCREMENT,
     `name`       varchar(20)  NOT NULL DEFAULT '' COMMENT '商铺类别名称',
@@ -309,7 +316,8 @@ CREATE TABLE IF NOT EXISTS `category`
 #   DEFAULT CHARSET = utf8mb4 COMMENT ='商品类别表';
 
 
-CREATE TABLE IF NOT EXISTS `member_shop_like`
+DROP TABLE IF EXISTS `member_shop_like`;
+CREATE TABLE `member_shop_like`
 (
     `id`         int(11)  NOT NULL AUTO_INCREMENT,
     `member_id`  int(11)           DEFAULT NULL COMMENT '会员id',
@@ -321,6 +329,7 @@ CREATE TABLE IF NOT EXISTS `member_shop_like`
 
 
 
+DROP TABLE IF EXISTS `member`;
 CREATE TABLE `member`
 (
     `id`                 int(11)      NOT NULL AUTO_INCREMENT,
@@ -346,6 +355,7 @@ CREATE TABLE `member`
   DEFAULT CHARSET = utf8mb4 COMMENT ='会员表';
 
 
+DROP TABLE IF EXISTS `member_addr`;
 CREATE TABLE `member_addr`
 (
     `id`             int(11)  NOT NULL AUTO_INCREMENT,
@@ -359,7 +369,8 @@ CREATE TABLE `member_addr`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `feedback`
+DROP TABLE IF EXISTS `feedback`;
+CREATE TABLE `feedback`
 (
     `id`               int(11)  NOT NULL AUTO_INCREMENT,
     `member_id`        int(11)           DEFAULT NULL,
@@ -371,7 +382,8 @@ CREATE TABLE IF NOT EXISTS `feedback`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='反馈表';
 
-CREATE TABLE IF NOT EXISTS `coupon`
+DROP TABLE IF EXISTS `coupon`;
+CREATE TABLE `coupon`
 (
     `id`             int(11)  NOT NULL AUTO_INCREMENT,
     `coupon_name`    varchar(50)       DEFAULT NULL COMMENT '券名称',
@@ -385,18 +397,20 @@ CREATE TABLE IF NOT EXISTS `coupon`
 
 
 
-CREATE TABLE IF NOT EXISTS `coupon_member`
+DROP TABLE IF EXISTS `coupon_member`;
+CREATE TABLE `coupon_member`
 (
     `id`             int(11)  NOT NULL AUTO_INCREMENT,
     `coupon_id`      int(11)           DEFAULT NULL COMMENT '抵扣券id',
     `member_id`      int(11)           DEFAULT NULL COMMENT '会员id',
-    `coupon_channel` int(4)            DEFAULT NULL COMMENT '领取券的渠道（1:用户购买 2:公司发放）',
+    `coupon_channel` int(4)            DEFAULT NULL COMMENT '领取券的渠道（1:平台发放 2:用户购买）',
     `created_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`     datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='会员-抵扣券中间表';
 
+DROP TABLE IF EXISTS `t_order`;
 CREATE TABLE `t_order`
 (
     `id`           bigint(20) NOT NULL COMMENT '订单ID',
@@ -413,6 +427,7 @@ CREATE TABLE `t_order`
   DEFAULT CHARSET = utf8mb4 COMMENT ='订单表';
 
 
+DROP TABLE IF EXISTS `t_order_commodity`;
 CREATE TABLE `t_order_commodity`
 (
     `id`         int(11)    NOT NULL AUTO_INCREMENT,
@@ -430,7 +445,8 @@ CREATE TABLE `t_order_commodity`
   DEFAULT CHARSET = utf8mb4 COMMENT ='订单详情表';
 
 
-CREATE TABLE IF NOT EXISTS `coupon_order`
+DROP TABLE IF EXISTS `coupon_order`;
+CREATE TABLE `coupon_order`
 (
     `id`         int(11)  NOT NULL AUTO_INCREMENT,
     `coupon_id`  int(11)           DEFAULT NULL COMMENT '抵扣券id',
@@ -442,7 +458,8 @@ CREATE TABLE IF NOT EXISTS `coupon_order`
   DEFAULT CHARSET = utf8mb4 COMMENT ='订单-抵扣券';
 
 
-CREATE TABLE IF NOT EXISTS `recommend`
+DROP TABLE IF EXISTS `recommend`;
+CREATE TABLE `recommend`
 (
     `member_id` int(11) NOT NULL COMMENT '会员id',
     `shop_ids`  varchar(255) DEFAULT NULL COMMENT '以“,”分隔的推荐商铺id字符串数组',
@@ -451,6 +468,7 @@ CREATE TABLE IF NOT EXISTS `recommend`
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户-推荐商铺表';
 
 
+DROP TABLE IF EXISTS `t_delivery`;
 CREATE TABLE `t_delivery`
 (
     `id`             int(11)  NOT NULL AUTO_INCREMENT,

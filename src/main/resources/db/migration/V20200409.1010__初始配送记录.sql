@@ -41,8 +41,8 @@
 # System.out.println(sql);
 # }
 
-INSERT IGNORE INTO `t_delivery`(`delivery_no`, `order_id`, `shop_id`, `sys_user_id`, `pick_time`, `arrive_time`,
-                                `member_id`, `member_addr_id`)
+INSERT IGNORE INTO `t_delivery`(`delivery_no`, `order_id`, `shop_id`, `sys_user_id`,`member_id`, `pick_time`, `arrive_time`,
+                                 `member_addr_id`)
 VALUES ('3d2285eaa509419993a1f6eb404103b0', '1248082178227597314', '1133', '1', '1', '2020-04-09T10:55:54.203',
         '2020-04-09T11:07:54.203', '1'),
        ('0a2a8ebbf29c45a0bead98b013e706c2', '1248082178277928962', '17', '1', '2', '2020-04-09T10:55:54.204',

@@ -1,4 +1,4 @@
-package com.lsd.fun.modules.cms.controller;
+package com.lsd.fun.modules.cms.query;
 
 import com.lsd.fun.common.utils.BaseQuery;
 import io.swagger.annotations.ApiModelProperty;

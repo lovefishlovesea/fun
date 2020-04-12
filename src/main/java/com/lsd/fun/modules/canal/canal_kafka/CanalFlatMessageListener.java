@@ -1,4 +1,4 @@
-package com.lsd.fun.modules.cms.canal_kafka;
+package com.lsd.fun.modules.canal.canal_kafka;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -20,6 +20,7 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import java.util.*;
@@ -44,6 +45,7 @@ public class CanalFlatMessageListener {
     private ShopDao shopDao;
     @Autowired
     private BaiduLBSService baiduLBSService;
+    @Qualifier("restHighLevelClient")
     @Autowired
     private RestHighLevelClient rhlClient;
 
@@ -113,7 +115,7 @@ public class CanalFlatMessageListener {
 
     /**
      * Sync to ES
-     * 优化效果：不使用bulk的话306条记录同步需要>1分钟，优化后只需要
+     * 优化效果：不使用bulk的话306条记录同步需要>1分钟，优化后只需要?s
      *
      * @param needIndexDataList 当前Kafka所有Binlog消息解析后得到的待更新数据
      */

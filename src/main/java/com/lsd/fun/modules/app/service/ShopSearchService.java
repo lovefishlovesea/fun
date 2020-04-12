@@ -47,7 +47,7 @@ public interface ShopSearchService {
     List<String> searchAsUType(String prefix);
 
     /**
-     * 使用 ik_smart Tokenizer + TokenFilter 对索引数据进行词条分析(分词)，并把全部词条(term)加入到索引的 补全建议关键词 列表
+     * 使用 ik_smart Tokenizer + 自定义同义词TokenFilter 对索引数据进行词条分析(分词)，并把全部词条(term)加入到索引的 补全建议关键词 列表
      * <p>
      * 过滤器构造参照:https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-analyze.html
      * 过滤器类型参照:https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenfilters.html

@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.lsd.fun.common.exception.RRException;
 import com.lsd.fun.common.utils.PageUtils;
 import com.lsd.fun.common.utils.Query;
-import com.lsd.fun.modules.cms.controller.ShopQuery;
+import com.lsd.fun.modules.cms.query.ShopQuery;
 import com.lsd.fun.modules.cms.dao.ShopDao;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
 import com.lsd.fun.modules.cms.vo.ShopVO;

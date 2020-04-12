@@ -1,7 +1,5 @@
-package com.lsd.fun.modules.cms.canal_kafka;
+package com.lsd.fun.modules.canal.canal_kafka;
 
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.otter.canal.protocol.Message;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -9,7 +7,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.lsd.fun.common.utils.Constant;
 import com.lsd.fun.modules.app.dto.ShopIndexKey;
@@ -30,6 +27,7 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -57,6 +55,7 @@ public class CanalMessageListener {
     private ShopDao shopDao;
     @Autowired
     private BaiduLBSService baiduLBSService;
+    @Qualifier("restHighLevelClient")
     @Autowired
     private RestHighLevelClient rhlClient;
     @Autowired

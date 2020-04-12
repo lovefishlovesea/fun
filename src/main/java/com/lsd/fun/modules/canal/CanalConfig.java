@@ -1,4 +1,4 @@
-package com.lsd.fun.modules.cms.canal;
+package com.lsd.fun.modules.canal;
 
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.CanalConnectors;

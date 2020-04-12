@@ -8,6 +8,8 @@ import com.lsd.fun.modules.app.query.ShopSearchQuery;
 import com.lsd.fun.modules.app.vo.ShopBucketByArea;
 import com.lsd.fun.modules.app.service.ShopSearchService;
 import com.lsd.fun.modules.app.vo.ShopSearchResult;
+import com.lsd.fun.modules.cms.dto.BaiduMapLocation;
+import com.lsd.fun.modules.cms.service.BaiduLBSService;
 import com.lsd.fun.modules.cms.service.ShopService;
 import com.lsd.fun.modules.cms.vo.ShopVO;
 import io.swagger.annotations.Api;
@@ -32,6 +34,8 @@ public class AppShopSearchController {
     private ShopSearchService shopSearchService;
     @Autowired
     private ShopService shopService;
+    @Autowired
+    private BaiduLBSService baiduLBSService;
 
     @ApiOperation(value = "根据选定城市聚合子地区商铺信息")
     @GetMapping("/area")
@@ -71,9 +75,9 @@ public class AppShopSearchController {
     @ApiOperation("搜索输入自动补全提示")
     @GetMapping("/search-as-you-type")
     public R searchAsUType(@RequestParam(value = "prefix") String prefix) {
-        if (StringUtils.isBlank(prefix)) {
-            return R.error(HttpStatus.SC_BAD_REQUEST,"输入字符不能为空");
-        }
+//        if (StringUtils.isBlank(prefix)) {
+//            return R.error(HttpStatus.SC_BAD_REQUEST, "输入字符不能为空");
+//        }
         List<String> result = shopSearchService.searchAsUType(prefix);
         return R.ok().put("data", result);
     }
@@ -83,6 +87,9 @@ public class AppShopSearchController {
     @GetMapping("/{id}")
     public R save(@PathVariable("id") Integer id) {
         ShopVO shop = shopService.queryById(id);
+        BaiduMapLocation location = baiduLBSService.parseAddress2Location(shop.getProvince() + shop.getCity() + shop.getRegion() + shop.getAddress());
+        shop.setLat(location.getLatitude());
+        shop.setLng(location.getLongitude());
         return R.ok().put("data", shop);
     }
 

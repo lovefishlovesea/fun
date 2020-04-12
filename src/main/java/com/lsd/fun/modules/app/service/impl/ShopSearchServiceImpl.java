@@ -57,6 +57,7 @@ import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -89,6 +90,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
         categoryId2WordMap.put(2, hotels);
     }
 
+    @Qualifier("restHighLevelClient")
     @Autowired
     private RestHighLevelClient rhlClient;
     @Autowired
@@ -171,16 +173,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
             return new PageUtils(Collections.emptyList(), query.getPage(), query.getLimit(), 0, false);
         }
         // 查询数据库
-        List<ShopVO> shopVOS;
-        if (StringUtils.isBlank(query.getOrder_field())) { //数据库默认就是id排序
-            QueryWrapper<Object> wrapper = Wrappers.query().eq("shop.disabled_flag", Constant.FALSE).in("shop.id", id2LocationMap.keySet());
-            if (StringUtils.equals(query.getOrder(), "desc")) {
-                wrapper.orderByDesc("shop.id");
-            }
-            shopVOS = shopService.queryList(wrapper);
-        } else {
-            shopVOS = shopService.listOrderByField(id2LocationMap.keySet());
-        }
+        List<ShopVO> shopVOS = shopService.listOrderByField(id2LocationMap.keySet());
         for (ShopVO vo : shopVOS) {
             LocationDto dto = id2LocationMap.get(vo.getId());
             vo.setDistance(dto.getDistance());
@@ -264,9 +257,9 @@ public class ShopSearchServiceImpl implements ShopSearchService {
         }
         // 根据搜索词去匹配人工标注的语义相关的多个分类id
         final Map<String, Integer> relativeCategory4KeywordMap = this.analyzeCategoryByKeyWord(query.getKeyword());
-        // 相关性不能既影响召回又影响排序，一起使用会一起加分，导致召回的文档排序混乱不符合需求。
-        // 比如召回打分高达0.9但排序打分只有0.1，那再把两个评分相加就会破坏打分标杆。
-        // 最佳实践：一般我们不会选择作用于召回规则（防止语义理解错误导致过多无关的结果），而是使用排序策略来提高搜索结果的相关性
+        // 相关性不能既使用在召回策略又使用在排序（打分）策略，否则会互相影响分值导致召回的文档排序混乱
+        // 假如一个文档在召回策略中得分占比高达0.9而排序策略中只有0.1，而另一个文档在排序策略中得分占比高达0.9而召回策略中只有0.1，那么最后相加起来的得分是没有排序意义的
+        // 最佳实践：一般我们不会把语义相关性作用于召回规则（防止语义理解错误导致过多无关的结果），而是使用在排序策略来提高搜索结果的相关性
         // 综上默认情况下，语义相关性只影响排序(打分)策略更加精确
         boolean isStrict = Constant.TRUE.equals(query.getIsStrict());
         if (!isStrict && !MapUtils.isEmpty(relativeCategory4KeywordMap)) {  // 语义相关性影响召回策略
@@ -291,7 +284,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
                             ScoreFunctionBuilders.gaussDecayFunction(
                                     ShopIndexKey.LOCATION,
                                     query.getLat() + "," + query.getLng(),
-                                    "100km", "0km", 0.5
+                                    "50km", "0km", 0.5
                             ).setWeight(9)
                     ),
                     new FunctionScoreQueryBuilder.FilterFunctionBuilder(   //加入商铺评分影响
@@ -320,7 +313,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
                     .scoreMode(FunctionScoreQuery.ScoreMode.SUM)    //以上functions之间的得分相加
                     .boostMode(CombineFunction.SUM);                //functions的总得分与query得分相加
             // 根据分数排序
-            sortBuilder = SortBuilders.fieldSort("_score").order(SortOrder.fromString(query.getOrder()));
+            sortBuilder = SortBuilders.fieldSort("_score").order(SortOrder.DESC);
         } else {  //非默认排序，直接根据用户选择的字段排序，不需要functions去计算分数 (另一种方案是把用户指定的排序字段放入field_value_factor,统一根据_score排序)
             boolean isSortByDistance = StringUtils.equals("distance", query.getOrder_field());
             if (isSortByDistance) {
@@ -398,7 +391,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
                 .analyzer("ik_syno")    //使用自定义的同义词分词器
                 .prefix(prefix)         //提供给suggest analyzer分析的需要补全的前缀
                 .size(maxSuggest)       //每个建议文本项最多可返回的建议词个数，默认值是5
-                .skipDuplicates(false); //是否从结果中过滤掉来自不同文档的重复建议词，开启后会减慢搜索速度，因为需要遍历更多的建议词选出topN，下边已使用set去重
+                .skipDuplicates(true); //是否从结果中过滤掉来自不同文档的重复建议词，开启后会减慢搜索速度，因为需要遍历更多的建议词选出topN，下边已使用set去重，由于索引中重复太多需要开启
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().suggest(
                 new SuggestBuilder().addSuggestion("autocomplete", completionSuggestion)
         );
@@ -459,7 +452,6 @@ public class ShopSearchServiceImpl implements ShopSearchService {
         AnalyzeRequest analyzeReq = AnalyzeRequest
                 .withIndexAnalyzer(ShopIndexKey.INDEX_NAME, "ik_syno_max4suggest",
                         shopVoRow.get("title") + "",
-                        shopVoRow.get("description") + "",
                         shopVoRow.get("address") + "",
                         shopVoRow.get("seller") + "");
         try {

@@ -3,7 +3,7 @@ package com.lsd.fun.modules.cms.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lsd.fun.common.utils.PageUtils;
-import com.lsd.fun.modules.cms.controller.ShopQuery;
+import com.lsd.fun.modules.cms.query.ShopQuery;
 import com.lsd.fun.modules.cms.dto.ShopExcelDTO;
 import com.lsd.fun.modules.cms.vo.ShopVO;
 import com.lsd.fun.modules.cms.entity.ShopEntity;

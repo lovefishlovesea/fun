@@ -29,7 +29,7 @@ public class ShopSearchQuery extends BaseQuery {
     @ApiModelProperty("标签")
     private String tags;
 
-    @ApiModelProperty(value = "0:语义相关性应用于召回策略(模糊模式)，1:语义相关性应用于排序策略(精准模式)", allowableValues = "range[0, 1]", example = "1")
+    @ApiModelProperty(value = "0:语义相关性应用于召回策略(模糊搜索)，1:语义相关性应用于排序策略(精准搜索))", allowableValues = "range[0, 1]", example = "1")
     private Integer isStrict = Constant.TRUE;
 
 }
