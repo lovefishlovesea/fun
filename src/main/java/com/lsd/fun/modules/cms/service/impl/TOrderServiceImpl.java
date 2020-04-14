@@ -115,6 +115,7 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderDao, TOrderEntity> impl
         tOrder.setId(orderId)
                 .setMemberId(userRoleDto.getUserId())
                 .setPayPrice(totalPrice)
+                .setOriginPrice(totalPrice)  //简化了优惠券逻辑
                 .setStatus(2);  //简化为直接订单已完成
         this.save(tOrder);
         // 删除购物车中的已结算商品

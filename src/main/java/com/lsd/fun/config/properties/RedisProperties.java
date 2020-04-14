@@ -17,6 +17,8 @@ public class RedisProperties {
         private String mailCaptcha = "";
         // 购物车的Key
         private String cart = "";
+        // etl数据的Key
+        private String etl = "";
     }
 
     private KeyPrefix keyPrefix = new KeyPrefix();

@@ -15,6 +15,7 @@ import com.lsd.fun.modules.cms.vo.ShopVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -40,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
  * @email syndaliang@foxmail.com
  * @date 2020-03-26 01:29:43
  */
+@Slf4j
 @Api(tags = "店铺", value = "此系统为了简化也把店铺看做商品")
 @RestController
 @RequestMapping("cms/shop")
@@ -135,30 +137,25 @@ public class ShopController {
     @ApiOperation(value = "导出Excel", notes = "导出所有商铺")
     @GetMapping("/listExport")
     @RequiresPermissions("cms:shop:list")
-    public R listExport(@RequestParam(required = false, defaultValue = "0") @ApiParam("是否导出模板，0：否，1：是") Integer isTemplate, HttpServletResponse response) {
+    public void listExport(@RequestParam(required = false, defaultValue = "0") @ApiParam("是否导出模板，0：否，1：是") Integer isTemplate, HttpServletResponse response) {
         // 全部按照固定资产的列头导出，非固定的把对应列值填充空白即可
         Workbook workbook = excelWriterFactory.getWriter("shopExcelWriter")
                 .exportExcel(null, isTemplate == 1 ? null : shopService.queryList(Wrappers.query().eq("shop.disabled_flag", 0)));
-        OutputStream out = null;
         // 输出Excel文件流
         String excelName = isTemplate == 1 ? "商铺信息模板" : "商铺信息";
         String fileName = excelName + (workbook instanceof HSSFWorkbook ? ".xls" : ".xlsx");
-        try {
+        try (OutputStream out = response.getOutputStream();) {
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);   // 网页直接下载
             response.setCharacterEncoding("UTF-8");
             response.addHeader("pragma", "no-cache");
             response.addHeader("Cache-Control", "no-cache");
-            response.flushBuffer();
-            out = response.getOutputStream();
             workbook.write(out);
             out.flush();
-            return R.ok();
+            response.flushBuffer();
         } catch (Exception e) {
-            e.printStackTrace();
-            return R.error("Excel导出发生错误");
+            log.error("Excel导出发生错误", e);
         } finally {
-            IOUtils.closeQuietly(out);
             if (workbook instanceof SXSSFWorkbook) {
                 SXSSFWorkbook sxssfWorkbook = (SXSSFWorkbook) workbook;
                 sxssfWorkbook.dispose();

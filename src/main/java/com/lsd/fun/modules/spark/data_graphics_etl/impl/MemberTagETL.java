@@ -1,7 +1,12 @@
-package com.lsd.fun.modules.spark;
+package com.lsd.fun.modules.spark.data_graphics_etl.impl;
 
 import com.google.gson.Gson;
 import com.lsd.fun.modules.app.vo.MemberTag;
+import com.lsd.fun.modules.spark.ETLEsService;
+import com.lsd.fun.modules.spark.SparkETLUtils;
+import com.lsd.fun.modules.spark.data_graphics_etl.ETLTask;
+import com.lsd.fun.modules.spark.dto.ETLTaskResult;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -16,8 +21,9 @@ import java.util.List;
  * Created by lsd
  * 2020-03-05 19:15
  */
+@Slf4j
 @Component
-public class MemberTagETLService {
+public class MemberTagETL implements ETLTask {
 
     @Autowired
     private SparkSession session;
@@ -26,7 +32,10 @@ public class MemberTagETLService {
     @Autowired
     private SparkETLUtils sparkETLUtils;
 
-    public void etlAndIndex() {
+    @Override
+    public ETLTaskResult cache() {
+        ETLTaskResult result = new ETLTaskResult().setTaskName("用户标签信息ETL");
+
         // 查询会员表
         Dataset<Row> member = session.sql(
                 "SELECT id AS memberId, phone, sex, member_channel AS channel, mp_open_id AS subOpenId, address_default_id AS address, date_format( created_at, 'yyyy-MM-dd' ) AS regTime " +
@@ -122,10 +131,14 @@ public class MemberTagETLService {
                 " left join chargeMoney as cm on m.memberId = cm.memberId" +
                 " left join overTime as ot on m.memberId = ot.memberId" +
                 " left join feedback as f on m.memberId = f.memberId";
-        List<MemberTag> memberTags = sparkETLUtils.execAndCollectAsList(session, sql, MemberTag.class);
-//        System.out.println(memberTags);
-
-        etlEsService.saveToEs(memberTags);
+        try {
+            List<MemberTag> memberTags = sparkETLUtils.execAndCollectAsList(session, sql, MemberTag.class);
+            etlEsService.saveToEs(memberTags);
+        } catch (Exception e) {
+            log.error("用户标签信息ETL失败", e);
+            return result.setSuccess(false);
+        }
+        return result.setSuccess(true);
     }
 
 

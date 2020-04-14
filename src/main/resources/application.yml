@@ -27,7 +27,7 @@ spring:
     host: 127.0.0.1
     port: 6379
     password:    # 密码（默认为空）
-    timeout: 6000ms  # 连接超时时长（毫秒）
+    timeout: 6000  # 连接超时时长（毫秒）
     jedis:
       pool:
         max-active: 1000  # 连接池最大连接数（使用负值表示没有限制）
@@ -92,6 +92,7 @@ fun:
       dictionary: fun:dictionary
       mail-captcha: fun:mail_captcha
       cart: fun:cart
+      etl: fun:etl
   elasticsearch:
     node-list: 127.0.0.1:9200
   max-suggest: 5
