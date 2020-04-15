@@ -9,5 +9,4 @@
         <result property="shopIds" column="shop_ids"/>
     </resultMap>
 
-
 </mapper>

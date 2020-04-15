@@ -3,7 +3,7 @@
 
 <mapper namespace="com.lsd.fun.modules.cms.dao.TOrderDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.lsd.fun.modules.cms.entity.TOrderEntity" id="tOrderMap">
         <result property="id" column="id"/>
         <result property="memberId" column="member_id"/>
@@ -13,6 +13,13 @@
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
+
+    <select id="listBoughtShopByUserId" resultType="java.lang.Integer">
+        select oc.shop_id
+        from t_order o
+                 left join t_order_commodity oc on oc.order_id = o.id
+        where o.member_id = #{userId}
+    </select>
 
 
 </mapper>

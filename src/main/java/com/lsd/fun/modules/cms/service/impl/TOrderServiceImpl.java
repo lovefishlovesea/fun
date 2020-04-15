@@ -123,4 +123,9 @@ public class TOrderServiceImpl extends ServiceImpl<TOrderDao, TOrderEntity> impl
         // TODO 通知管理后台有新订单
     }
 
+    @Override
+    public List<Integer> listBoughtShopByUserId(Integer userId) {
+        return this.baseMapper.listBoughtShopByUserId(userId);
+    }
+
 }

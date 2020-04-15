@@ -161,7 +161,9 @@ public class ShopServiceImpl extends ServiceImpl<ShopDao, ShopEntity> implements
 
     @Override
     public List<ShopVO> listOrderByField(Collection<Integer> keySet) {
-        return this.baseMapper.listOrderByField(keySet);
+        List<ShopVO> shopVOS = this.baseMapper.listOrderByField(keySet);
+        addCoverUrlPrefix(shopVOS);
+        return shopVOS;
     }
 
     /**

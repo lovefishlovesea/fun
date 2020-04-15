@@ -37,7 +37,7 @@
         <poi.version>4.1.0</poi.version>
         <canal.version>1.1.4</canal.version>
         <elasticsearch.version>7.5.2</elasticsearch.version>
-        <spark.version>2.1.2</spark.version>
+        <spark.version>2.2.0</spark.version>
         <scala.version>2.11</scala.version>
         <netty-all.version>4.0.43.Final</netty-all.version>
         <codehaus.version>3.0.8</codehaus.version>
@@ -46,7 +46,7 @@
         <!-- 开发数据库属性 -->
         <flyway.url>
             <![CDATA[
-            jdbc:mysql://mysql-server/fun?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+            jdbc:mysql://127.0.0.1:4406/fun?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
             ]]>
         </flyway.url>
         <flyway.user>root</flyway.user>
@@ -94,10 +94,10 @@
                     <groupId>io.lettuce</groupId>
                     <artifactId>lettuce-core</artifactId>
                 </exclusion>
-            <exclusion>
-                <groupId>redis.clients</groupId>
-                <artifactId>jedis</artifactId>
-            </exclusion>
+                <exclusion>
+                    <groupId>redis.clients</groupId>
+                    <artifactId>jedis</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- jedis客户端 -->
@@ -323,11 +323,11 @@
             <version>${canal.version}</version>
         </dependency>
         <!-- ES -->
-<!--        <dependency>-->
-<!--            <groupId>org.elasticsearch</groupId>-->
-<!--            <artifactId>elasticsearch-hadoop</artifactId>-->
-<!--            <version>${elasticsearch.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.elasticsearch</groupId>-->
+        <!--            <artifactId>elasticsearch-hadoop</artifactId>-->
+        <!--            <version>${elasticsearch.version}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
@@ -431,6 +431,17 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>2.11.8</version>
+        </dependency>
+        <!--  Spark2.2必须加入  -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>2.7.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>2.7.7</version>
         </dependency>
 
     </dependencies>

@@ -1,10 +1,11 @@
 package com.lsd.fun.modules.app.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
 import com.lsd.fun.common.exception.RRException;
-import com.lsd.fun.common.utils.*;
+import com.lsd.fun.common.utils.BaseQuery;
+import com.lsd.fun.common.utils.Constant;
+import com.lsd.fun.common.utils.PageUtils;
+import com.lsd.fun.common.utils.ShopSortUtil;
 import com.lsd.fun.modules.app.dto.LocationDto;
 import com.lsd.fun.modules.app.dto.SearchResultDto;
 import com.lsd.fun.modules.app.dto.ShopIndexKey;
@@ -15,17 +16,13 @@ import com.lsd.fun.modules.app.vo.ShopBucketByArea;
 import com.lsd.fun.modules.app.vo.ShopSearchResult;
 import com.lsd.fun.modules.cms.dto.BaiduMapLocation;
 import com.lsd.fun.modules.cms.dto.ShopSuggest;
-import com.lsd.fun.modules.cms.entity.ShopEntity;
-import com.lsd.fun.modules.cms.vo.ShopVO;
 import com.lsd.fun.modules.cms.service.BaiduLBSService;
 import com.lsd.fun.modules.cms.service.ShopService;
-import io.swagger.annotations.ApiOperation;
+import com.lsd.fun.modules.cms.vo.ShopVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -48,7 +45,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -61,10 +57,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -84,7 +76,7 @@ public class ShopSearchServiceImpl implements ShopSearchService {
 
     @PostConstruct
     public void iniCategoryId2WordMap() {
-        final List<String> foods = Lists.newArrayList("吃饭", "晚饭", "美食", "食物", "吃");
+        final List<String> foods = Lists.newArrayList("鸡", "吃饭", "晚饭", "美食", "食物", "吃");
         final List<String> hotels = Lists.newArrayList("休息", "睡觉", "住宿", "住", "民宿", "酒店");
         categoryId2WordMap.put(1, foods);
         categoryId2WordMap.put(2, hotels);
@@ -256,7 +248,8 @@ public class ShopSearchServiceImpl implements ShopSearchService {
             must.add(QueryBuilders.matchQuery(ShopIndexKey.TAGS, query.getTags()).operator(Operator.AND));
         }
         // 根据搜索词去匹配人工标注的语义相关的多个分类id
-        final Map<String, Integer> relativeCategory4KeywordMap = this.analyzeCategoryByKeyWord(query.getKeyword());
+        Map<String, Integer> relativeCategory4KeywordMap = StringUtils.isBlank(query.getKeyword()) ? null :
+                this.analyzeCategoryByKeyWord(query.getKeyword());
         // 相关性不能既使用在召回策略又使用在排序（打分）策略，否则会互相影响分值导致召回的文档排序混乱
         // 假如一个文档在召回策略中得分占比高达0.9而排序策略中只有0.1，而另一个文档在排序策略中得分占比高达0.9而召回策略中只有0.1，那么最后相加起来的得分是没有排序意义的
         // 最佳实践：一般我们不会把语义相关性作用于召回规则（防止语义理解错误导致过多无关的结果），而是使用在排序策略来提高搜索结果的相关性
@@ -265,13 +258,16 @@ public class ShopSearchServiceImpl implements ShopSearchService {
         if (!isStrict && !MapUtils.isEmpty(relativeCategory4KeywordMap)) {  // 语义相关性影响召回策略
             List<QueryBuilder> should = functionScoreQuery.should();
             should.add(QueryBuilders.matchQuery(ShopIndexKey.TITLE, query.getKeyword()).boost(0.1F));
+            should.add(QueryBuilders.matchQuery(ShopIndexKey.SELLER_NAME, query.getKeyword()).boost(0.1F));
             // 把所有搜索分词语义相关的类目id全部增加到should条件中，负责文档召回
             relativeCategory4KeywordMap.forEach((keywordToken, relativeCategoryId) ->
                     // 相关category只影响召回，不影响打分（排序）
                     should.add(QueryBuilders.termQuery(ShopIndexKey.CATEGORY_ID, relativeCategoryId).boost(0))
             );
-        } else {   // 语义相关性不影响召回，只影响排序(打分)策略(再下边的function_score中再通过filter对相关的category统一进行打分)
-            must.add(QueryBuilders.matchQuery(ShopIndexKey.TITLE, query.getKeyword()).boost(0.1F));
+        } else if (StringUtils.isNotBlank(query.getKeyword())) {   // 语义相关性不影响召回，只影响排序(打分)策略(再下边的function_score中再通过filter对相关的category统一进行打分)
+            List<QueryBuilder> should = functionScoreQuery.should();
+            should.add(QueryBuilders.matchQuery(ShopIndexKey.TITLE, query.getKeyword()).boost(0.1F));
+            should.add(QueryBuilders.matchQuery(ShopIndexKey.SELLER_NAME, query.getKeyword()).boost(0.1F));
         }
 
         // =======================  function_score的functions(打分) =======================

@@ -5,6 +5,7 @@ import com.lsd.fun.common.utils.Constant;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotBlank;
  * Created by lsd
  * 2020-04-04 13:07
  */
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ShopSearchQuery extends BaseQuery {

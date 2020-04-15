@@ -49,7 +49,7 @@ spring:
   mail:
     host: smtp.qq.com
     username: syndaliang@foxmail.com
-    password: mjhxznapedpdebbh
+    password: suygjfbijnliecgj
     test-connection: true
     port: 465
     properties:
