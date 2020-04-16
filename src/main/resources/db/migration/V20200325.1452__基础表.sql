@@ -487,5 +487,43 @@ CREATE TABLE `t_delivery`
   AUTO_INCREMENT = 801
   DEFAULT CHARSET = utf8mb4 COMMENT ='配送信息表';
 
+DROP TABLE IF EXISTS `comment`;
+CREATE TABLE `comment`
+(
+    `id`            int(11)                             NOT NULL AUTO_INCREMENT,
+    `pid`           int(11)                             NULL     DEFAULT NULL COMMENT '一级子评论和二级子评论的pid都=顶层父评论的id',
+    `user_id`       int(11)                             NULL     DEFAULT NULL,
+    `reply_user_id` int(11)                             NULL COMMENT '二级子评论被回复者id,一级子评论为NULL',
+    `shop_id`       int(11)                             NULL     DEFAULT NULL comment '店铺id',
+    `content`       varchar(1024) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
+    `created_at`    datetime(0)                         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP(0),
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `fk_pid` (`pid`) USING BTREE,
+    INDEX `fk_comment_user` (`user_id`) USING BTREE,
+    INDEX `fk_reply_user_id` (`reply_user_id`) USING BTREE,
+    INDEX `fk_comment_shop_id` (`shop_id`) USING BTREE,
+    CONSTRAINT `fk_comment_shop_id` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `member` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
+    CONSTRAINT `fk_reply_user_id` FOREIGN KEY (`reply_user_id`) REFERENCES `member` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
+    CONSTRAINT `fk_pid` FOREIGN KEY (`pid`) REFERENCES `comment` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT '评论表';
+
+DROP TABLE IF EXISTS `comment_vote`;
+CREATE TABLE `comment_vote`
+(
+    `user_id`    int(11) NOT NULL,
+    `comment_id` int(11) NOT NULL,
+    PRIMARY KEY (`user_id`, `comment_id`) USING BTREE,
+    INDEX `fk_comment_vote_comment` (`comment_id`) USING BTREE,
+    CONSTRAINT `fk_comment_vote_comment` FOREIGN KEY (`comment_id`) REFERENCES `comment` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT `fk_comment_vote_user` FOREIGN KEY (`user_id`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT '评论点赞表';
+
 
 SET FOREIGN_KEY_CHECKS = 1;

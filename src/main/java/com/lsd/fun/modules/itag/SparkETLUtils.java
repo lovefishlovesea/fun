@@ -29,28 +29,29 @@ public class SparkETLUtils {
 
     /**
      * 配置操作 Hive 和 ES 的SparkSession，一个应用中只能有一个SparkSession
+     * 构造SparkSession时会自动读取resource下的hive-site.xml
      */
     @Bean
     public SparkSession initSparkSession4ES() {
         // Setting Master for running it
-        SparkConf sparkConf = new SparkConf()
-                .setAppName("spark-fun")
-                .setMaster("spark://spark-master:7077") //提交到Spark执行
-//                .setJars(new String[]{"hdfs://namenode:8020/user/spark/dev-jars/fun-1.0-SNAPSHOT.jar"})  //设置分发到集群的jar，非local模式必须配置否则ClassCastException
-                .set("es.nodes", "elasticsearch")
-                .set("es.port", "9200")
-                .set("es.index.auto.create", "true");  // 若索引mapping结构不存在则自动创建
-        JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
-        // 配置hadoop
-        Configuration hadoopConf = sparkContext.hadoopConfiguration();
-        // 必须有这个设置，否则No FileSystem for scheme: hdfs
-        hadoopConf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-        hadoopConf.set("fs.file.impl", LocalFileSystem.class.getName());
-        return SparkSession.builder()
-                .config(sparkConf)
-                .enableHiveSupport()
-                .getOrCreate();
-//        return SparkSession.builder().master("local").appName("spark-fun").getOrCreate();
+//        SparkConf sparkConf = new SparkConf()
+//                .setAppName("spark-fun")
+//                .setMaster("spark://spark-master:7077") //提交到Spark执行
+////                .setJars(new String[]{"hdfs://namenode:8020/user/spark/dev-jars/fun-1.0-SNAPSHOT.jar"})  //设置分发到集群的jar，非local模式必须配置否则ClassCastException
+//                .set("es.nodes", "elasticsearch")
+//                .set("es.port", "9200")
+//                .set("es.index.auto.create", "true");  // 若索引mapping结构不存在则自动创建
+//        JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
+//        // 配置hadoop
+//        Configuration hadoopConf = sparkContext.hadoopConfiguration();
+//        // 必须有这个设置，否则No FileSystem for scheme: hdfs
+//        hadoopConf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+//        hadoopConf.set("fs.file.impl", LocalFileSystem.class.getName());
+//        return SparkSession.builder()
+//                .config(sparkConf)
+//                .enableHiveSupport()
+//                .getOrCreate();
+        return SparkSession.builder().master("local").appName("spark-fun").getOrCreate();
     }
 
 

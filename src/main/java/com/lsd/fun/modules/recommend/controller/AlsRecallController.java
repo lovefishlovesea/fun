@@ -1,4 +1,4 @@
-package com.lsd.fun.modules.recommend;
+package com.lsd.fun.modules.recommend.controller;
 
 import com.google.common.collect.Maps;
 import com.lsd.fun.common.exception.RRException;
