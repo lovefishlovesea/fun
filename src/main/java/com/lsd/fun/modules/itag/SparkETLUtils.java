@@ -2,6 +2,7 @@ package com.lsd.fun.modules.itag;
 
 import com.google.gson.Gson;
 import com.lsd.fun.modules.recommend.dto.RatingMatrixParseLineFunction;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -28,14 +29,19 @@ public class SparkETLUtils {
 
     @Autowired
     private Gson gson;
+    @Value("${spark.master:}")
+    private String master;
 
     /**
      * 配置操作 Hive 和 ES 的SparkSession，一个应用中只能有一个SparkSession
      * 构造SparkSession时会自动读取resource下的hive-site.xml
      */
-    @ConditionalOnExpression("'${spark.master}'!=null && !'${spark.master}'.trim().empty")
     @Bean
     public SparkSession initSparkSession4ES() {
+        // 没有配置master，注入本地模式的SpaKSession
+        if (StringUtils.isBlank(master)){
+            return SparkSession.builder().master("local").appName("spark-fun").getOrCreate();
+        }
         // Setting Master for running it
         SparkConf sparkConf = new SparkConf()
                 .setAppName("spark-fun")
@@ -56,14 +62,6 @@ public class SparkETLUtils {
                 .getOrCreate();
     }
 
-    /**
-     * 本地模式的SpaKSession
-     */
-    @ConditionalOnExpression("'${spark.master}'==null || '${spark.master}'.trim().empty")
-    @Bean
-    public SparkSession initLocalSparkSession() {
-        return SparkSession.builder().master("local").appName("spark-fun").getOrCreate();
-    }
 
 
     /**
