@@ -138,3 +138,6 @@ baidu-map:
     queryUrl: http://api.map.baidu.com/geodata/v3/poi/list
     updateUrl: http://api.map.baidu.com/geodata/v3/poi/update
     deleteUrl: http://api.map.baidu.com/geodata/v3/poi/delete
+
+#spark:
+#  master: spark://spark-master:7077
