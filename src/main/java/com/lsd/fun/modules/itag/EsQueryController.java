@@ -9,6 +9,7 @@ import com.lsd.fun.modules.itag.dto.ETLTaskResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.httpclient.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -50,12 +51,12 @@ public class EsQueryController {
     @Autowired
     private MemberTagETL memberTagETL;
 
-    // fix线程池,改为有界队列防止OOM,队列满了丢任务抛异常,固定大小为5(保证只有一次并发请求能成功)
-    private final static int SIZE = 6;
+    // fix线程池,改为有界队列防止OOM,队列满了丢任务抛异常,固定大小为6(保证只有一次并发请求能成功)
+    private final static int TASK_NUM = 6;
     private final static ExecutorService threadPool = new ThreadPoolExecutor(
-            SIZE, SIZE,
+            TASK_NUM, TASK_NUM,
             0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(5),
+            new ArrayBlockingQueue<>(TASK_NUM),
             (r, executor) -> {
                 log.error("Task " + r.toString() + " rejected from " + executor.toString());
                 throw new RRException("系统努力计算中，请稍后再试");
@@ -101,17 +102,19 @@ public class EsQueryController {
         completionService.submit(() -> lineChartETL.cache());
         completionService.submit(() -> remindETL.cache());
         try {
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < TASK_NUM; i++) {
                 Future<ETLTaskResult> future = completionService.take();
                 ETLTaskResult result = future.get();
                 log.debug(result.getTaskName() + "完成");
                 resultList.add(result);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            // 恢复中断，因为无需返回结果，所以取消任务
-            Thread.currentThread().interrupt();
-            //异常处理
-            return R.error("异步执行失败");
+        } catch (InterruptedException e) {
+            // 因为任务已经取消无需返回结果，所以恢复中断
+            log.error("数据清洗任务中断", e);
+            return R.error(HttpStatus.SC_INTERNAL_SERVER_ERROR, "数据清洗任务中断");
+        } catch (ExecutionException e) {
+            log.error("数据清洗任务异常", e);
+            return R.error(HttpStatus.SC_INTERNAL_SERVER_ERROR, "数据清洗任务异常");
         }
         log.debug("异步数据清洗任务完成，总耗时：{}s", (System.currentTimeMillis() - start) / 1000.0);
         return R.ok().put("data", resultList);
@@ -174,6 +177,7 @@ public class EsQueryController {
         }
         return sb.toString();
     }
+
 
     @PreDestroy
     public void close() {

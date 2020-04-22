@@ -1,5 +1,5 @@
 FROM openjdk:8-jre-buster
 
-COPY target/rest-*.jar /app.jar
+COPY target/fun-*.jar /app.jar
 
 EXPOSE 8080
