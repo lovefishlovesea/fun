@@ -71,8 +71,8 @@ public class MemberTagETL implements ETLTask {
         // 按会员聚合充值优惠券信息
         Dataset<Row> chargeMoney = session.sql(
                 "select cm.member_id as memberId , sum(c.coupon_price/2) as chargeMoney" +
-                        " from i_marketing.t_coupon_member as cm" +
-                        " left join i_marketing.t_coupon as c" +
+                        " from fun.coupon_member as cm" +
+                        " left join fun.coupon as c" +
                         " on cm.coupon_id = c.id" +
                         " where cm.coupon_channel = 2" +   //coupon_channel = 2即用户购买的
                         " group by cm.member_id"

@@ -89,22 +89,35 @@ public class LineChartETL implements ETLTask {
         List<Tuple2<Row, Row>> tuple2s = tuple2Dataset.collectAsList();
 
         // 查询结果转换LineVo对象
-        List<LineVo> lineVos = tuple2s.stream()
-                .map(tuple2 -> {
-                    //因为不知道Hive查出来的结果集中每个字段名字及其类型，所以需要借助Json对象转换
-                    JsonObject jsonObject = new JsonObject();
-                    Row row1 = tuple2._1();
-                    String[] fieldNames = row1.schema().fieldNames();
-                    for (String fieldName : fieldNames) {
-                        jsonObject.add(fieldName, gson.toJsonTree(row1.getAs(fieldName)));
-                    }
-                    Row row2 = tuple2._2();
-                    fieldNames = row2.schema().fieldNames();
-                    for (String fieldName : fieldNames) {
-                        jsonObject.add(fieldName, gson.toJsonTree(row2.getAs(fieldName)));
-                    }
-                    return gson.fromJson(jsonObject, LineVo.class);
-                }).collect(Collectors.toList());
+        List<LineVo> lineVos = new ArrayList<>();
+        for (Tuple2<Row, Row> tuple2 : tuple2s) {
+            //因为不知道Hive查出来的结果集中每个字段名字及其类型，所以需要借助Json对象转换
+            JsonObject jsonObject = new JsonObject();
+            Row row1 = tuple2._1();
+            Row row2 = tuple2._2();
+            if (row1 == null && row2 == null) {
+                continue;
+            }
+            if (row1 != null) {
+                String[] fieldNames = row1.schema().fieldNames();
+                for (String fieldName : fieldNames) {
+                    jsonObject.add(fieldName, gson.toJsonTree(row1.getAs(fieldName)));
+                }
+            } else {
+                jsonObject.add("regCount", gson.toJsonTree(0L));
+                jsonObject.add("memberCount", gson.toJsonTree(0L));
+            }
+            if (row2 != null) {
+                String[] fieldNames = row2.schema().fieldNames();
+                for (String fieldName : fieldNames) {
+                    jsonObject.add(fieldName, gson.toJsonTree(row2.getAs(fieldName)));
+                }
+            } else {
+                jsonObject.add("orderCount", gson.toJsonTree(0L));
+                jsonObject.add("gmv", gson.toJsonTree(0L));
+            }
+            lineVos.add(gson.fromJson(jsonObject, LineVo.class));
+        }
 
         // 截止至7天前的总gmv
         String gmvTotalSQL = String.format("select sum(origin_price) as totalGmv from fun.t_order where created_at <'%s'", DateUtils.format(sevenDaysBefore, DateUtils.DATE_TIME_PATTERN));
