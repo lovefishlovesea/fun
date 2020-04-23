@@ -64,6 +64,7 @@ steps:
 
   - name: code-analysis
     image: aosapps/drone-sonar-plugin
+    failure: ignore  #代码质量分析成功与否，不影响其他管道执行
     settings:
       sonar_host: http://192.168.11.101:9000
       sonar_token: 9bc80cee1e0c5c8e594ed471e865eaa4ffcbb131

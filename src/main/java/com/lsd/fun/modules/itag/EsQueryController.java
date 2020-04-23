@@ -168,7 +168,7 @@ public class EsQueryController {
      * 结果转为文本，把 List<MemberTag> -> String
      */
     private String totxtFileContent(List<MemberTag> memberTags) {
-        StringBuilder sb = new StringBuilder("会员ID,联系电话");
+        StringBuilder sb = new StringBuilder("会员ID,联系电话\r\n");
         for (MemberTag tag : memberTags) {
             sb.append(tag.getMemberId())
                     .append(",")

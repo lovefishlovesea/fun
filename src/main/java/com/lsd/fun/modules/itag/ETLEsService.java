@@ -105,7 +105,7 @@ public class ETLEsService {
     /**
      * 批量索引到ES
      */
-    public void saveToEs(List<MemberTag> memberTags) {
+    public void saveToEs(List<MemberTag> memberTags) throws IOException {
         BulkRequest bulkReq = new BulkRequest()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);  //写入完成立即刷新
         try {
@@ -126,7 +126,8 @@ public class ETLEsService {
             }
             log.info("会员用户ETL数据批量索引完成，共{}条记录，成功{}条，失败{}条", total, total - failed, failed);
         } catch (Exception e) {
-            log.error("会员用户ETL数据批量索引出错", e);
+            log.error("会员用户ETL数据批量索引出错");
+            throw e;
         }
     }
 
