@@ -170,7 +170,6 @@ public class CanalMessageListener {
             } catch (Exception e) {
                 shopVoRow.put("location", "0,0");
             }
-//            shopVoRow.remove("address");  //map已经设置为了dynamic=false,可以不去删除map中的多余字段
             // 索引中存储的自动补全关键词列表
             List<ShopSuggest> shopSuggests = shopSearchService.analyzeSuggestion(shopVoRow);
             shopVoRow.put(ShopIndexKey.SUGGESTION, JSONUtil.parseArray(shopSuggests));

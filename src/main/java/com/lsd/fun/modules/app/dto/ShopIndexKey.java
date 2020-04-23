@@ -17,6 +17,7 @@ public class ShopIndexKey {
     public final static String PROVINCE = "province";
     public final static String CITY = "city";
     public final static String REGION = "region";
+    public final static String ADDRESS = "address";
     public final static String LOCATION = "location";
     public final static String REMARK_SCORE = "remark_score";
     public final static String PRICE_PER_MAN = "price_per_man";

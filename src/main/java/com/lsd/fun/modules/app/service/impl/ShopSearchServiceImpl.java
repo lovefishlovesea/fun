@@ -267,7 +267,8 @@ public class ShopSearchServiceImpl implements ShopSearchService {
         } else if (StringUtils.isNotBlank(query.getKeyword())) {   // 语义相关性不影响召回，只影响排序(打分)策略(再下边的function_score中再通过filter对相关的category统一进行打分)
             List<QueryBuilder> should = functionScoreQuery.should();
             should.add(QueryBuilders.matchQuery(ShopIndexKey.TITLE, query.getKeyword()).boost(0.1F));
-            should.add(QueryBuilders.matchQuery(ShopIndexKey.SELLER_NAME, query.getKeyword()).boost(0.1F));
+            should.add(QueryBuilders.matchQuery(ShopIndexKey.SELLER_NAME, query.getKeyword()));
+            should.add(QueryBuilders.matchQuery(ShopIndexKey.ADDRESS, query.getKeyword()));
         }
 
         // =======================  function_score的functions(打分) =======================
