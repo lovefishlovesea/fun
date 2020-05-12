@@ -41,6 +41,7 @@
                shop.disabled_flag,
                category.name as category,
                seller.name   as seller,
+               cover.id      as cover_file_id,
                cover.path    as cover_url,
                cover.is_crawl
         from shop
