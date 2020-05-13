@@ -59,4 +59,6 @@ public class TFileEntity implements Serializable {
 	 */
 	private LocalDateTime deletedAt;
 
+	private Integer isCrawl;
+
 }

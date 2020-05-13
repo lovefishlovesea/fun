@@ -3,6 +3,7 @@ package com.lsd.fun.modules.cos.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Maps;
+import com.lsd.fun.common.utils.Constant;
 import com.lsd.fun.modules.cos.config.QiNiuProperties;
 import com.lsd.fun.modules.cos.service.QiNiuService;
 import com.qiniu.common.QiniuException;
@@ -101,10 +102,17 @@ public class TFileServiceImpl extends ServiceImpl<TFileDao, TFileEntity> impleme
     @Transactional
     @Override
     public void deleteById(Integer tFileId) {
-        this.lambdaQuery().select(TFileEntity::getPath)
+        Optional<TFileEntity> oneOpt = this.lambdaQuery().select(TFileEntity::getPath, TFileEntity::getIsCrawl)
                 .eq(TFileEntity::getId, tFileId)
-                .oneOpt()
-                .ifPresent(tFile -> this.delete(tFile.getPath()));
+                .oneOpt();
+        if (!oneOpt.isPresent()) {
+            return;
+        }
+        TFileEntity tFile = oneOpt.get();
+        if (Constant.TRUE.equals(tFile.getIsCrawl())) {
+            return;
+        }
+        this.delete(tFile.getPath());
         // 更新数据库
         this.lambdaUpdate()
                 .set(TFileEntity::getDeletedAt, LocalDateTime.now())
