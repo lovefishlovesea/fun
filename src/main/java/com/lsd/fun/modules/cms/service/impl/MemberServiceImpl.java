@@ -43,7 +43,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         Optional<MemberVo> opt = Optional.ofNullable(this.baseMapper.queryById(userId));
         if (opt.isPresent()) {
             MemberVo vo = opt.get();
-            vo.setAvatarUrl(qiNiuProperties.getHostPrefix() + vo.getAvatarUrl());
+            if (vo.getAvatar() != null) {
+                vo.setAvatarUrl(qiNiuProperties.getHostPrefix() + vo.getAvatarUrl());
+            }
         }
         return opt;
     }
