@@ -51,15 +51,15 @@ public class EsQueryController {
     @Autowired
     private MemberTagETL memberTagETL;
 
-    // fix线程池,改为有界队列防止OOM,队列满了丢任务抛异常,固定大小为6(保证只有一次并发请求能成功)
-    private final static int TASK_NUM = 6;
+    // fix线程池,改为同步队列，保证只有一次并发请求能成功
+    private static final int TASK_NUM = 6;
     private final static ExecutorService threadPool = new ThreadPoolExecutor(
             TASK_NUM, TASK_NUM,
             0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(TASK_NUM),
+            new SynchronousQueue<>(),
             (r, executor) -> {
                 log.error("Task " + r.toString() + " rejected from " + executor.toString());
-                throw new RRException("系统努力计算中，请稍后再试");
+                throw new RRException("系统正在努力计算，请稍后再试");
             }
     );
 
