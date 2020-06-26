@@ -111,8 +111,8 @@ fun:
       enabled: true
   qiniu:
     enable: true
-    accessKey: EkDLVyUgeJuKvc2AfeZLj4up7j8QduQRwuBeCPk6
-    secretKey: Pk_ioSF4-psi2DGVIdsqYmC8-f1UloVYaKiLNm3z
+    accessKey: ***
+    secretKey: ***
     bucket: fun-test
     cdnPrefix: cdn
     hostPrefix: http://q7ulkqz9m.bkt.clouddn.com/   #外链默认域名
@@ -130,7 +130,7 @@ fun:
 
 #百度地图 API Key
 baidu-map:
-  apiKey: UiiRCb5THoN4tsKwIYaPYnka8OaDHiDz
+  apiKey: ***
   geocoderApiPrefix: http://api.map.baidu.com/geocoding/v3/
   poi:
     geotableId: 209006
