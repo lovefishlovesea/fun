@@ -48,8 +48,8 @@ spring:
   #QQ邮箱邮件smtp服务配置（需要把SMTP协议更换为SMTPS协议，否则频率高就会被误判为垃圾邮件而封禁）
   mail:
     host: smtp.qq.com
-    username: syndaliang@foxmail.com
-    password: suygjfbijnliecgj
+    username: ***
+    password: ***
     test-connection: true
     port: 465
     properties:
