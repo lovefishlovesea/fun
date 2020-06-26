@@ -96,8 +96,8 @@ steps:
       # - registry.lsd.info:192.168.11.101
       mirror: https://fhjvj31b.mirror.aliyuncs.com  # 镜像仓库源（用于拉取镜像）
       registry: hub.c.163.com  # 镜像仓库地址（用于推送镜像）
-      username: 13249278038  # 镜像仓库的账号
-      password: 815211859lsd  # 镜像仓库的密码
+      username: ***  # 镜像仓库的账号
+      password: ***  # 镜像仓库的密码
       repo: hub.c.163.com/leme34/test/fun  # 镜像仓库中的具体项目
       tags:  # 镜像标签
         - ${DRONE_BRANCH//\//-}-latest  # 分支名-latest（该分支的最新版本）
@@ -132,7 +132,7 @@ steps:
   - name: update  # 步骤名称（该步骤在服务器上的命令行拉取仓库最新镜像并执行更新）
     commands:     # 执行命令
       - cd /data/hadoop-spark-hive
-      - docker login -u 13249278038 -p 815211859lsd hub.c.163.com    # 登录镜像仓库
+      - docker login -u *** -p *** hub.c.163.com    # 登录镜像仓库
       - docker-compose pull fun  # 拉取最新镜像
       - docker-compose up -d fun # 更新服务
 
